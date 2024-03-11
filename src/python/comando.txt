@@ -1,0 +1,1 @@
+pyinstaller --onefile FaturaNu.py
