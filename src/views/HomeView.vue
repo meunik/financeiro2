@@ -53,9 +53,19 @@
           :group-by="checkboxGroupBy?'nome':null"
           class="elevation-1"
         >
+          <template v-slot:item.nome="{ item }">
+            <span :class="cor(item.tipo)">
+              {{ item.nome }}
+            </span>
+          </template>
           <template v-slot:item.valor="{ item }">
             <span :class="cor(item.tipo)">
               {{ dinheiro(item.valor) }}
+            </span>
+          </template>
+          <template v-slot:item.data="{ item }">
+            <span :class="cor(item.tipo)">
+              {{ item.data }}
             </span>
           </template>
         </v-data-table>

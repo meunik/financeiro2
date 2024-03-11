@@ -1,16 +1,17 @@
 const { ipcMain } = require('electron');
-const { spawn } = require('child_process');
 const path = require('path');
+const { execFile } = require('child_process');
 
 ipcMain.on('converterPdfParaJson', (event, pdfPath) => {
-  // const python = spawn('resources\\FaturaNu.exe', [pdfPath]);
-  const python = spawn(path.join(__static, 'FaturaNu.exe'), [pdfPath]);
+  let exePath;
+  if (process.env.NODE_ENV !== 'production') exePath = path.join(__static, 'FaturaNu.exe');
+  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturaNu.exe');
   
-  let data = '';
-  python.stdout.on('data', (chunk) => { data += chunk.toString() });
-
-  python.on('close', (code) => {
-    if (code !== 0) console.error(`Python script retornou ${code}`);
-    event.reply('pdfJson', data);
+  execFile(exePath, [pdfPath], (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Python script retornou com erro: ${error}`);
+      return;
+    }
+    event.reply('pdfJson', stdout);
   });
 });
