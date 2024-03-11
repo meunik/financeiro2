@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import path from 'path'
@@ -18,6 +18,7 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    // frame: false,
     webPreferences: {
       
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -28,6 +29,9 @@ async function createWindow() {
       preload: path.join(__static, 'preload.js')
     }
   })
+
+  const menu = Menu.buildFromTemplate([])
+  Menu.setApplicationMenu(menu)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

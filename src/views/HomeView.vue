@@ -12,23 +12,32 @@
     </v-btn>
     <v-divider class="mb-10"></v-divider>
 
-    <v-file-input label="File input" v-model="pdfPath"></v-file-input>
+    <v-file-input label="Arquivo" v-model="pdfPath"></v-file-input>
     
     <v-btn @click="converterPdfParaJson()">
       <v-icon left>mdi-file-send</v-icon>
       Converter
     </v-btn>
 
-    <div class="my-5">
-      Valor Total {{ dinheiro(total) }}
-    </div>
-    <div class="my-5">
-      Entradas: {{ dinheiro(entradas) }}
-    </div>
-    <div class="my-5">
-      Saidas {{ dinheiro(saidas) }}
-    </div>
-    <div class="my-5">
+    <v-row class="my-5">
+      <v-col>
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" rounded shaped>Valor Total: {{ dinheiro(total) }}</v-banner>
+      </v-col>
+      <v-col>
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" rounded shaped>Entradas: <span class="green--text">{{ dinheiro(entradas) }}</span></v-banner>
+      </v-col>
+      <v-col>
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" rounded shaped>Saidas: <span class="red--text">{{ dinheiro(saidas) }}</span></v-banner>
+      </v-col>
+    </v-row>
+
+    <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
+
+    <v-skeleton-loader v-if="loading" class="my-5" type="table"></v-skeleton-loader>
+    <div v-else class="my-5">
       <v-card>
         <v-card-title>
             <v-checkbox
@@ -51,6 +60,8 @@
           :search="search"
           :items-per-page="15"
           :group-by="checkboxGroupBy?'nome':null"
+          :loading="loading"
+          loading-text="Carregando... Por favor, aguarde"
           class="elevation-1"
         >
           <template v-slot:item.nome="{ item }">
@@ -84,6 +95,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       checkboxGroupBy: false,
       groupBy: null,
       transacoes: [],
@@ -113,18 +125,23 @@ export default {
       self.entradas = data.entradas;
       self.saidas = data.saidas;
       self.transacoes = data.transacoes;
+      self.loading = false;
       console.log('completou');
     });
   },
   methods: {
     converterPdfParaJson() {
+      this.loading = true;
       let dirtorio = ''
 
       if (this.pdfPath) {
         console.log(this.pdfPath.path)
         dirtorio = this.pdfPath.path
         window.api.send('converterPdfParaJson', dirtorio);
-      } else alert('Arquivo não encontrado')
+      } else {
+        this.loading = false;
+        alert('Arquivo não encontrado')
+      }
     },
     dinheiro(numero) {
       return "R$ " + numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
