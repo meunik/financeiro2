@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import './css/style.css';
+import './css/padronizados.css';
+
 Vue.config.productionTip = false
 
 new Vue({

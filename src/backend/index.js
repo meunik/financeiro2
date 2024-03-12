@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, BrowserWindow } = require('electron');
 const path = require('path');
 const { execFile } = require('child_process');
 
@@ -14,4 +14,25 @@ ipcMain.on('converterPdfParaJson', (event, pdfPath) => {
     }
     event.reply('pdfJson', stdout);
   });
+});
+
+ipcMain.on('minimizar', (event) => {
+  let win = BrowserWindow.getFocusedWindow()
+  if(win) win.minimize()
+});
+
+ipcMain.on('fechar', () => {
+  let win = BrowserWindow.getFocusedWindow()
+  if(win) win.close()
+});
+
+ipcMain.on('maximizar', () => {
+  let win = BrowserWindow.getFocusedWindow()
+  if(win) {
+    if(win.isMaximized()) {
+      win.unmaximize()
+    } else {
+      win.maximize()
+    }
+  }
 });

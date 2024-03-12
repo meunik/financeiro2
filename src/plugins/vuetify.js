@@ -6,7 +6,17 @@ Vue.use(Vuetify);
 import pt from 'vuetify/es5/locale/pt';
 
 export default new Vuetify({
-    theme: { dark: true },
+    theme: { 
+      dark: true,
+      themes: {
+        dark: {
+          transparente: '#121212',
+        },
+        light: {
+          transparente: '#ffffff',
+        },
+      },
+    },
     lang: {
       locales: { pt },
       current: 'pt',
