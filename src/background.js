@@ -19,6 +19,7 @@ async function createWindow() {
     width: 800,
     height: 600,
     frame: false,
+    icon: path.join(__static, 'logo.png'),
     webPreferences: {
       
       // Use pluginOptions.nodeIntegration, leave this alone

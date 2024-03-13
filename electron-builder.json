@@ -1,0 +1,15 @@
+{
+  "appId": "com.seuapp.id",
+  "productName": "Financeiro",
+  "directories": {
+    "output": "dist"
+  },
+  "asar": true,
+  "asarUnpack": "FaturaNu.exe",
+  "files": [
+    "dist/electron/**/*"
+  ],
+  "win": {
+    "icon": "src/assets/logo.ico"
+  }
+}

@@ -124,7 +124,7 @@ export default {
       data: {
         labels: nomes,
         datasets: [{
-          labels: 'Despesas',
+          label: 'Despesas',
           data: totais,
           // backgroundColor: [ '#ff6384', '#36a2eb', '#cc65fe', '#ffce56' ],
           backgroundColor: this.entrada ? this.coresEntradas : this.coresSaidas,

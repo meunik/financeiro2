@@ -1,1 +1,22 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.5 100"><defs><style>.cls-1{fill:#1697f6;}.cls-2{fill:#7bc6ff;}.cls-3{fill:#1867c0;}.cls-4{fill:#aeddff;}</style></defs><title>Artboard 46</title><polyline class="cls-1" points="43.75 0 23.31 0 43.75 48.32"/><polygon class="cls-2" points="43.75 62.5 43.75 100 0 14.58 22.92 14.58 43.75 62.5"/><polyline class="cls-3" points="43.75 0 64.19 0 43.75 48.32"/><polygon class="cls-4" points="64.58 14.58 87.5 14.58 43.75 100 43.75 62.5 64.58 14.58"/></svg>
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1080" height="1080" rx="250" fill="url(#paint0_linear_1275_6769)"/>
+<g filter="url(#filter0_i_1275_6769)">
+<path d="M364.855 184.3H451.255C454.855 184.9 456.655 187.3 456.655 191.5V246.4C456.655 250.6 454.255 252.7 449.455 252.7H412.555C387.355 252.7 374.755 263.8 374.755 286V835H319.855C293.455 835 273.355 828.4 259.555 815.2C246.355 802 239.755 785.2 239.755 764.8V454.3H193.855C178.855 454.3 171.355 445.3 171.355 427.3V385H239.755V302.2C239.755 258.4 249.655 227.8 269.455 210.4C289.255 193 321.055 184.3 364.855 184.3ZM457.555 385V427.3C457.555 445.3 450.055 454.3 435.055 454.3H394.555V385H457.555ZM644.467 385H770.467C835.867 385 868.567 417.1 868.567 481.3V835H765.967C756.367 835 748.567 831.7 742.567 825.1C736.567 818.5 733.567 809.8 733.567 799V479.5C733.567 469.9 731.167 463 726.367 458.8C722.167 454.6 712.267 452.5 696.667 452.5H644.467V385ZM486.967 385H541.867C568.267 385 588.067 391.6 601.267 404.8C615.067 417.4 621.967 433.9 621.967 454.3V835H519.367C509.767 835 501.967 831.7 495.967 825.1C489.967 818.5 486.967 809.8 486.967 799V385Z" fill="white"/>
+</g>
+<defs>
+<filter id="filter0_i_1275_6769" x="171.355" y="184.301" width="697.212" height="654.699" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="12.5"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_1275_6769"/>
+</filter>
+<linearGradient id="paint0_linear_1275_6769" x1="540" y1="0" x2="540" y2="1080" gradientUnits="userSpaceOnUse">
+<stop stop-color="#2196F3"/>
+<stop offset="1" stop-color="#13578D"/>
+</linearGradient>
+</defs>
+</svg>

@@ -1,5 +1,18 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div>
+    <Mapear />
+    <!-- <Fatura /> -->
   </div>
 </template>
+
+<script>
+import Fatura from '@/views/Fatura.vue'
+import Mapear from '@/views/Mapear.vue'
+
+export default {
+  components: {
+    Fatura,
+    Mapear,
+  },
+}
+</script>

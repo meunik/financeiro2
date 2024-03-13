@@ -1,18 +1,25 @@
-const { ipcMain, BrowserWindow } = require('electron');
+const { ipcMain, BrowserWindow, dialog } = require('electron');
 const path = require('path');
-const { execFile } = require('child_process');
+const { spawn } = require('child_process');
+const iconv = require('iconv-lite');
+import { listarArquivos } from '@/Utils/Mapear'
 
 ipcMain.on('converterPdfParaJson', (event, pdfPath) => {
   let exePath;
   if (process.env.NODE_ENV !== 'production') exePath = path.join(__static, 'FaturaNu.exe');
   else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturaNu.exe');
   
-  execFile(exePath, [pdfPath], (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Python script retornou com erro: ${error}`);
-      return;
-    }
-    event.reply('pdfJson', stdout);
+  const python = spawn(exePath, [pdfPath]);
+  
+  let data = '';
+  python.stdout.on('data', (chunk) => { 
+    let decodedChunk = iconv.decode(chunk, 'latin1');
+    data += decodedChunk;
+  });
+
+  python.on('close', (code) => {
+    if (code !== 0) console.error(`Python script retornou ${code}`);
+    event.reply('pdfJson', data);
   });
 });
 
@@ -35,4 +42,18 @@ ipcMain.on('maximizar', () => {
       win.maximize()
     }
   }
+});
+
+ipcMain.on('mapear', (event) => {
+  dialog.showOpenDialog({
+    properties: ['openDirectory']
+  }).then(result => {
+    if (!result.canceled) {
+      let diretorio = result.filePaths[0];
+      let mapa = listarArquivos(diretorio)
+      event.reply('mapeado', mapa);
+    }
+  }).catch(err => {
+    console.log(err);
+  });
 });

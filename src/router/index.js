@@ -9,12 +9,12 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Fatura
+    component: Inicial
   },
   {
-    path: '/inicial',
-    name: 'inicial',
-    component: Inicial
+    path: '/Fatura',
+    name: 'Fatura',
+    component: Fatura
   }
 ]
 

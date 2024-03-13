@@ -1,13 +1,26 @@
 <template>
   <v-app>
-    <v-system-bar window :app="true" class="transparente" style="-webkit-app-region: drag">
+    <v-system-bar window :app="true" class="transparente drag"
+     :style="`background-color: ${systemBarBg} !important;`">
+     <img src="logo.png" height="70%" class="mr-3" alt="logo">
       <!-- <v-icon>mdi-message</v-icon>
       <span>10 unread messages</span> -->
-      <v-switch style="-webkit-app-region: no-drag" v-model="$vuetify.theme.dark" label="Dark Mode"></v-switch>
+      <v-switch class="noDrag mt-5" v-model="$vuetify.theme.dark" label="Dark Mode"></v-switch>
+      <v-btn class="noDrag ml-3 px-0" icon small @click="atualizarPagina"><v-icon>mdi-refresh</v-icon></v-btn>
+      
       <v-spacer></v-spacer>
-      <v-icon @click="minimizar" style="-webkit-app-region: no-drag">mdi-minus</v-icon>
-      <v-icon @click="maximizar" style="-webkit-app-region: no-drag">mdi-checkbox-blank-outline</v-icon>
-      <v-icon @click="fechar" style="-webkit-app-region: no-drag">mdi-close</v-icon>
+
+      <v-btn icon small color="#2196f3" class="noDrag btnBarr mx-1" @click="minimizar">
+        <v-icon small class="mx-0 grey--text">mdi-minus</v-icon>
+      </v-btn>
+
+      <v-btn icon small color="#2196f3" class="noDrag btnBarr mx-1" @click="maximizar">
+        <v-icon small class="mx-0 grey--text">mdi-checkbox-blank-outline</v-icon>
+      </v-btn>
+
+      <v-btn icon small color="#D50000" class="noDrag btnBarr mx-1" @click="fechar">
+        <v-icon small class="mx-0 grey--text">mdi-close</v-icon>
+      </v-btn>
     </v-system-bar>
 
     <v-main>
@@ -22,10 +35,18 @@
 
 export default {
   name: 'App',
+  computed: {
+    systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' }
+  },
   methods: {
     minimizar() { window.api.send('minimizar') },
     fechar() { window.api.send('fechar') },
     maximizar() { window.api.send('maximizar') },
+    atualizarPagina() {
+      this.$nextTick(() => {
+        location.reload();
+      });
+    }
   }
 };
 </script>
