@@ -28,13 +28,32 @@
         <router-view/>
       </v-container>
     </v-main>
+
+    <v-snackbar
+      v-for="(item, i) in notificacoes"
+      :key="i"
+      v-model="item.show"
+      :color="item.color"
+      :timeout="2000000"
+      :style="`bottom: ${i * 60}px`"
+      right
+      shaped
+    >
+      {{ item.text }}
+      <template v-slot:action="{ attrs }">
+        <v-btn icon text v-bind="attrs" @click="removeNotificacao(i)">
+          <v-icon class="mx-0">mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
+import { Model } from "@/store/Model"
 
 export default {
-  name: 'App',
+  mixins: [Model],
   computed: {
     systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' }
   },

@@ -2,12 +2,14 @@
   <div>
     <div v-if="btnConverter">
       <v-file-input class="mt-2" label="Arquivo" v-model="pdfPath"></v-file-input>
-      <v-btn @click="converterPdfParaJson()">
+      <v-btn color="secondary" @click="converterPdfParaJson()">
         <v-icon left>mdi-file-send</v-icon>
         Converter
       </v-btn>
       <v-divider class="mt-5"></v-divider>
     </div>
+
+    <v-btn @click="notificacao('Nova mensagem')">Adicionar Snackbar</v-btn>
 
     <h1 class="mt-2">Fatura</h1>
     <div v-if="arquivo">
@@ -18,6 +20,12 @@
         <v-icon class="mx-0 red--text">mdi-file-remove</v-icon>
       </v-btn>
     </div>
+
+    <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()">
+      <!-- <v-icon left>mdi-invoice-export-outline</v-icon> -->
+      <v-icon left>mdi-table-arrow-right</v-icon>
+      Exportar
+    </v-btn>
 
     <v-row class="my-5">
       <v-col>
@@ -111,15 +119,19 @@
 import FaturaAgrupada from '@/views/FaturaAgrupada.vue'
 import GraficosFatura from '@/components/Graficos/GraficosFatura.vue'
 import { dinheiro } from '@/Utils/Converter'
+import { Model } from "@/store/Model"
 
 export default {
+  mixins: [Model],
   components: {
     FaturaAgrupada,
     GraficosFatura,
   },
   data() {
     return {
-      loading: false,
+      snackbar: false,
+
+      carregando: false,
       btnConverter: true,
       arquivo: '',
       checkboxGroupBy: false,
@@ -162,12 +174,16 @@ export default {
       self.agruparTransacoes(data.transacoes, 1);
       self.agruparTransacoes(data.transacoes, 0);
     });
+    window.api.on('arquivoSalvo', (arquivo) => {
+      self.notificacao(arquivo, 'success');
+    });
   },
   methods: {
     dinheiro,
     minimizar() { window.api.send('minimizar') },
     fechar() { window.api.send('fechar') },
     maximizar() { window.api.send('maximizar') },
+    exportJson() { window.api.send('exportarXlsx', this.transacoes) },
     removerArquivo() {
       this.loading = false;
       this.btnConverter = true;
@@ -197,7 +213,7 @@ export default {
 
       if (this.pdfPath) {
         dirtorio = this.pdfPath.path
-        window.api.send('converterPdfParaJson', dirtorio);
+        window.api.send('fatura', dirtorio);
       } else {
         this.loading = false;
         alert('Arquivo não encontrado')
