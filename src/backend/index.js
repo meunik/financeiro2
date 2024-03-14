@@ -54,7 +54,19 @@ ipcMain.on('faturaMult', async (event, pastas) => {
     let fatura = await faturaMultLoop(pasta.path);
     faturas.push(fatura);
   }
-  event.reply('faturaMultRetorno', faturas);
+
+  let agrupados = faturas.reduce((acc, obj) => {
+    acc.total += obj.total;
+    acc.pagamentos += obj.pagamentos;
+    acc.estornos += obj.estornos;
+    acc.entradas += obj.entradas;
+    acc.saidas += obj.saidas;
+    acc.transacoes = acc.transacoes.concat(obj.transacoes);
+    return acc;
+  }, {total: 0, pagamentos: 0, estornos: 0, entradas: 0, saidas: 0, transacoes: []});
+  
+  event.reply('faturaMultRetorno', faturas, agrupados);
+  // console.log(agrupados);
   // console.log(faturas);
   // console.log(JSON.stringify(faturas, null, 2));
 });
@@ -83,8 +95,8 @@ ipcMain.on('minimizar', (event) => {
 });
 
 ipcMain.on('fechar', () => {
-  let win = BrowserWindow.getFocusedWindow()
-  if(win) win.close()
+  let win = BrowserWindow.getFocusedWindow();
+  if (win) win.destroy();
 });
 
 ipcMain.on('maximizar', () => {

@@ -114,29 +114,40 @@ export default {
       ]
     }
   },
+  watch: {
+    items() {
+      if (this.chart) this.chart.destroy();
+      this.createChart();
+    }
+  },
   mounted() {
-    const ctx = this.$refs.canvas.getContext('2d');
-    let nomes = this.items.map(obj => obj.nome);
-    let totais = this.items.map(obj => obj.total);
+    this.createChart();
+  },
+  methods: {
+    createChart() {
+      const ctx = this.$refs.canvas.getContext('2d');
+      let nomes = this.items.map(obj => obj.nome);
+      let totais = this.items.map(obj => obj.total);
 
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: nomes,
-        datasets: [{
-          label: 'Despesas',
-          data: totais,
-          // backgroundColor: [ '#ff6384', '#36a2eb', '#cc65fe', '#ffce56' ],
-          backgroundColor: this.entrada ? this.coresEntradas : this.coresSaidas,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        // indexAxis: 'y', # fica vertical
-        scales: { y: { beginAtZero: true } }
-      }
-    });
+      this.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: nomes,
+          datasets: [{
+            label: 'Despesas',
+            data: totais,
+            // backgroundColor: [ '#ff6384', '#36a2eb', '#cc65fe', '#ffce56' ],
+            backgroundColor: this.entrada ? this.coresEntradas : this.coresSaidas,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          // indexAxis: 'y', # fica vertical
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
   }
 }
 </script>

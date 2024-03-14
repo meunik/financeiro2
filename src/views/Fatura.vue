@@ -9,8 +9,6 @@
       <v-divider class="mt-5"></v-divider>
     </div>
 
-    <v-btn @click="notificacao('Nova mensagem')">Adicionar Snackbar</v-btn>
-
     <h1 class="mt-2">Fatura</h1>
     <div v-if="arquivo">
       <v-icon class="mb-3" left>mdi-arrow-right-bottom</v-icon>
@@ -21,7 +19,7 @@
       </v-btn>
     </div>
 
-    <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()">
+    <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()" :loading="loading">
       <!-- <v-icon left>mdi-invoice-export-outline</v-icon> -->
       <v-icon left>mdi-table-arrow-right</v-icon>
       Exportar
@@ -110,8 +108,8 @@
 
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
-    <FaturaAgrupada v-if="transacoesAgrupadas.length > 0" :items="transacoesAgrupadas" :datas="diasAgrupadas"/>
-    <GraficosFatura v-if="transacoesAgrupadas.length > 0" :items="transacoesAgrupadas" />
+    <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
+    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" />
   </div>
 </template>
 
@@ -129,16 +127,14 @@ export default {
   },
   data() {
     return {
-      snackbar: false,
-
       carregando: false,
       btnConverter: true,
       arquivo: '',
       checkboxGroupBy: false,
       groupBy: null,
       diasAgrupadas: [],
-      transacoesAgrupadasEntradas: [],
-      transacoesAgrupadas: [],
+      transAgrupEntradas: [],
+      transAgrup: [],
       transacoes: [],
       headers: [
         {
@@ -170,9 +166,9 @@ export default {
       self.entradas = data.entradas;
       self.saidas = data.saidas;
       self.transacoes = data.transacoes;
-      self.loading = false;
       self.agruparTransacoes(data.transacoes, 1);
       self.agruparTransacoes(data.transacoes, 0);
+      self.loading = false;
     });
     window.api.on('arquivoSalvo', (arquivo) => {
       self.notificacao(arquivo, 'success');
@@ -191,8 +187,8 @@ export default {
       this.checkboxGroupBy = false;
       this.groupBy = null;
       this.diasAgrupadas = [];
-      this.transacoesAgrupadasEntradas = [];
-      this.transacoesAgrupadas = [];
+      this.transAgrupEntradas = [];
+      this.transAgrup = [];
       this.transacoes = [];
       this.search = null;
       this.pdfPath = null;
@@ -202,8 +198,7 @@ export default {
       this.entradas = 0.00;
       this.saidas = 0.00;
     },
-    atualizarDados(load, arquivo, btn=false) {
-      this.loading = load;
+    atualizarDados(arquivo, btn=false) {
       this.arquivo = arquivo.name;
       this.btnConverter = btn;
     },
@@ -232,7 +227,7 @@ export default {
 
       if (tipo == "1") {
         let agrupadas = [...new Set(result)];
-        this.transacoesAgrupadas = agrupadas
+        this.transAgrup = agrupadas
 
         let datas = transacoes.map(obj => obj.data);
         let datasUnicas = [...new Set(datas)];
@@ -240,7 +235,7 @@ export default {
         this.diasAgrupadas = datasUnicas
       } else {
         let agrupadas = [...new Set(result)];
-        this.transacoesAgrupadasEntradas = agrupadas
+        this.transAgrupEntradas = agrupadas
       }
 
     },

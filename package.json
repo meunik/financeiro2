@@ -8,7 +8,8 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild -f -w sqlite3"
   },
   "main": "background.js",
   "dependencies": {

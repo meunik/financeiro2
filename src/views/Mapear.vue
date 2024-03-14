@@ -1,24 +1,25 @@
 <template>
   <div>
-    <v-bottom-sheet v-if="mapa.length > 0" v-model="sheet">
+    <v-bottom-sheet v-if="mapa.length > 0" v-model="sheet" inset>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn color="purple" dark v-bind="attrs" v-on="on">
+        <v-btn color="purple" dark v-bind="attrs" v-on="on" :loading="loading">
           <v-icon left>mdi-folder</v-icon>
           Pastas
         </v-btn>
       </template>
-      <v-list>
-        <v-subheader>
-          <h3>Pastas</h3>
+      <v-list class="pt-0">
+        <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
+        <v-subheader class="pt-5">
+          <h3 class="pl-4">Pastas</h3>
 
-          <v-btn v-if="selection.length" color="accent" class="ml-3" @click="mult()">
+          <v-btn v-if="selection.length" color="accent" class="ml-3" @click="mult()" :loading="loading">
             <v-icon left>mdi-file-send</v-icon>
             Mult
           </v-btn>
         
           <v-spacer></v-spacer>
 
-          <v-btn color="secondary" @click="listarArquivos()">
+          <v-btn color="secondary" @click="listarArquivos()" :loading="loading">
             <v-icon left>mdi-file-send</v-icon>
             Remapear
           </v-btn>
@@ -39,7 +40,7 @@
             item-key="caminho"
             return-object
             open-on-click
-            @update:active="abrir"
+            @update:active="abrirDialog"
           >
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="!item.file">
@@ -55,32 +56,80 @@
       </v-list>
     </v-bottom-sheet>
 
-    <v-btn v-else color="secondary" @click="listarArquivos()">
+    <v-btn v-else color="secondary" @click="listarArquivos()" :loading="loading">
       <v-icon left>mdi-file-send</v-icon>
       Mapear
     </v-btn>
 
     <v-divider class="mt-5"></v-divider>
 
+    <v-dialog v-model="dialog" persistent max-width="300px">
+      <v-card>
+        <v-card-title class="text-h5">
+          Selecione o conversor
+        </v-card-title>
+        <v-card-text class="pa-0">
+          <v-list dense class="pa-0">
+            <!-- <v-subheader>REPORTS</v-subheader> -->
+            <v-list-item-group v-model="selectedItem" color="primary">
+
+              <v-list-item v-for="(item, i) in dialogItemsExibir" :key="i" @click="abrir(item.item, item.icon)">
+                <v-list-item-icon class="mx-3"><Icone :icone="item.icon"/></v-list-item-icon>
+                <v-list-item-content><v-list-item-title>{{item.text}}</v-list-item-title></v-list-item-content>
+              </v-list-item>
+
+            </v-list-item-group>
+          </v-list>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="dialog = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <Fatura v-show="fatura" ref="faturaRef" />
+    <MultFatura v-show="multFatura" ref="multFaturaRef" />
   </div>
 </template>
 
 <script>
 import Fatura from '@/views/Fatura.vue'
-
+import MultFatura from '@/views/MultFatura.vue'
+import Icone from '@/assets/icones/Icone.vue'
+import { Model } from "@/store/Model"
+ 
 export default {
+  mixins: [Model],
   components: {
     Fatura,
+    MultFatura,
+    Icone,
   },
   data() {
     return {
+      dialog: false,
+      selectedItem: null,
+      dialogItemsExibir: [],
+      dialogItems: {
+        pdf: [
+          { text: 'Fatura Nu', icon: 'Nubank' },
+          // { text: 'Fatura Bradesco', icon: 'Bradesco' },
+          // { text: 'Fatura Santander', icon: 'Santander' },
+        ],
+        jpg: [
+          { text: 'Fatura Nu', icon: 'Nubank' },
+          { text: 'Fatura Bradesco', icon: 'Bradesco' },
+          { text: 'Fatura Santander', icon: 'Santander' },
+        ],
+      },
+
       sheet: false,
       selection: [],
       fatura: false,
+      multFatura: false,
       dirtorio: '',
       search: '',
-      loading: false,
       mapa: [],
       active: [],
       files: {
@@ -104,28 +153,49 @@ export default {
     window.api.on('mapeado', (json) => {
       self.mapa = json;
       self.sheet = true;
+      self.loading = false;
     });
-    window.api.on('faturaMultRetorno', (json) => {
-      console.log(json);
+    window.api.on('faturaMultRetorno', (separados, agrupados) => {
+      self.restaComponetes();
+      self.dialog = false;
+      self.sheet = false;
+      self.multFatura = true;
+      self.$refs.multFaturaRef.atualizarDados(this.selection);
     });
   },
   methods: {
+    teste(item, tipo) { console.log(item, tipo); },
     listarArquivos() { window.api.send('mapear') },
-    mult() { if (this.selection.length) window.api.send('faturaMult', this.selection) },
+    mult() {
+      this.loading = true;
+      if (this.selection.length) window.api.send('faturaMult', this.selection)
+    },
     restaComponetes() {
       this.fatura = false;
+      this.multFatura = false;
     },
-    abrir(item) {
+    abrirDialog(item) {
+      let extensao = item[0].file.toLowerCase()
+      switch (extensao) {
+        case 'pdf':
+          this.dialogItemsExibir = this.dialogItems.pdf.map(obj => ({ ...obj, item: item }));
+          this.dialog = true;
+          break;
+
+        default: break;
+      }
+    },
+    abrir(item, tipo) {
       this.restaComponetes()
+      this.dialog = false;
       this.sheet = false;
       if (item.length == 0) return null;
       this.dirtorio = item[0].caminho;
-      // let arquivo = JSON.parse(JSON.stringify(item[0]))
-      // console.log(arquivo);
-      switch (item[0].file.toLowerCase()) {
-        case 'pdf':
+      let extensao = item[0].file.toLowerCase()
+      switch (tipo) {
+        case 'Nubank':
           this.fatura = true;
-          this.$refs.faturaRef.atualizarDados(true, item[0])
+          this.$refs.faturaRef.atualizarDados(item[0])
           window.api.send('fatura', this.dirtorio);
           break;
 
