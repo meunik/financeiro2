@@ -5,6 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import path from 'path'
 import '@/backend'
+// import '@/backend/db'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

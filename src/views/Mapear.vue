@@ -10,19 +10,30 @@
       <v-list class="pt-0">
         <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
         <v-subheader class="pt-5">
-          <h3 class="pl-4">Pastas</h3>
-
-          <v-btn v-if="selection.length" color="accent" class="ml-3" @click="mult()" :loading="loading">
-            <v-icon left>mdi-file-send</v-icon>
-            Mult
-          </v-btn>
-        
-          <v-spacer></v-spacer>
-
           <v-btn color="secondary" @click="listarArquivos()" :loading="loading">
             <v-icon left>mdi-file-send</v-icon>
             Remapear
           </v-btn>
+      
+          <v-spacer></v-spacer>
+
+          <v-row>
+            <v-col class="py-1 flex-end">
+              <v-btn v-if="selection.length" color="accent" @click="mult()" :loading="loading">
+                <v-icon left>mdi-file-send</v-icon>
+                Mult
+              </v-btn>
+            </v-col>
+            <v-col class="py-1 flex-end">
+              <v-btn v-if="selection.length" color="deep-purple" @click="atualizarBaseDados()" :loading="loading">
+                <v-icon left>mdi-database-import</v-icon>
+                Atualizar Base de Dados
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-subheader>
+        <v-subheader class="pt-5">
+          <h3 class="pl-4">Selecione o(s) Arquivo(s)</h3>
         </v-subheader>
         <!-- <template v-if="!selection.length">No nodes selected.</template>
         <template v-else>
@@ -56,12 +67,41 @@
       </v-list>
     </v-bottom-sheet>
 
-    <v-btn v-else color="secondary" @click="listarArquivos()" :loading="loading">
-      <v-icon left>mdi-file-send</v-icon>
-      Mapear
-    </v-btn>
+    <div v-else>
+      <v-btn color="secondary" @click="listarArquivos()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        Mapear
+      </v-btn>
+      <!-- <v-btn class="mx-2" color="deep-purple" @click="atualizarBaseDados()" :loading="loading">
+        <v-icon left>mdi-database-import</v-icon>
+        Atualizar Base de Dados
+      </v-btn> -->
+    </div>
 
     <v-divider class="mt-5"></v-divider>
+
+    <div>
+      <v-btn color="green" @click="cadastrar()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        Add
+      </v-btn>
+      <v-btn class="ml-2" color="blue" @click="buscar()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        Buscar
+      </v-btn>
+      <v-btn class="ml-2" color="orange" @click="editar()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        Editar
+      </v-btn>
+      <v-btn class="ml-2" color="red" @click="remover()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        Deletar
+      </v-btn>
+      <v-btn class="ml-2" color="black" @click="zerar()" :loading="loading">
+        <v-icon left>mdi-file-send</v-icon>
+        zerar
+      </v-btn>
+    </div>
 
     <v-dialog v-model="dialog" persistent max-width="300px">
       <v-card>
@@ -150,12 +190,20 @@ export default {
   },
   created() {
     let self = this;
+    window.api.on('buscarRetorno', (dados, msg, erro, erroMsg) => {
+      console.log(dados);
+    });
+    window.api.on('loadingOff', (json) => {
+      self.loading = false;
+    });
     window.api.on('mapeado', (json) => {
       self.mapa = json;
       self.sheet = true;
       self.loading = false;
     });
     window.api.on('faturaMultRetorno', (separados, agrupados) => {
+      console.log(separados);
+      console.log('faturaMultRetorno');
       self.restaComponetes();
       self.dialog = false;
       self.sheet = false;
@@ -164,10 +212,24 @@ export default {
     });
   },
   methods: {
-    teste(item, tipo) { console.log(item, tipo); },
-    listarArquivos() { window.api.send('mapear') },
+    listarArquivos:() => window.api.send('mapear'),
+    atualizarBaseDados () {
+      this.loading = true;
+      window.api.send('addBaseDados', this.selection)
+    },
+    cadastrar:() => window.api.send('cadastrar', { set: { name: 'Nome do Usuário', age: 20 } }),
+
+    buscar:() => window.api.send('buscar', { eventTxt: 'buscarRetorno' }),
+    // buscar:() => window.api.send('buscar', { get: { age: 20 } }),
+    // buscar:() => window.api.send('buscar'),
+
+    editar:() => window.api.send('editar', { get: { age: 20 }, editar: { $set: { age: 21 } }}),
+    remover:() => window.api.send('remover', { get: { _id: "mqplMF2WnAmyOoJu" } }),
+    zerar:() => window.api.send('zerar'),
+
     mult() {
       this.loading = true;
+      console.log(this.selection);
       if (this.selection.length) window.api.send('faturaMult', this.selection)
     },
     restaComponetes() {

@@ -58,14 +58,10 @@ export default {
     systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' }
   },
   methods: {
-    minimizar() { window.api.send('minimizar') },
-    fechar() { window.api.send('fechar') },
-    maximizar() { window.api.send('maximizar') },
-    atualizarPagina() {
-      this.$nextTick(() => {
-        location.reload();
-      });
-    }
+    minimizar:() => window.api.send('minimizar'),
+    fechar:() => window.api.send('fechar'),
+    maximizar:() => window.api.send('maximizar'),
+    atualizarPagina() { this.$nextTick(() => { location.reload() }) }
   }
 };
 </script>

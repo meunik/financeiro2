@@ -19,6 +19,15 @@ html, body {
   opacity: 1 !important;
 }
 
+.v-subheader {
+  height: auto;
+}
+
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
 
 ::-webkit-scrollbar {
   width: 10px;

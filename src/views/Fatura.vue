@@ -176,9 +176,6 @@ export default {
   },
   methods: {
     dinheiro,
-    minimizar() { window.api.send('minimizar') },
-    fechar() { window.api.send('fechar') },
-    maximizar() { window.api.send('maximizar') },
     exportJson() { window.api.send('exportarXlsx', this.transacoes) },
     removerArquivo() {
       this.loading = false;
