@@ -4,7 +4,10 @@ const { spawn } = require('child_process');
 const iconv = require('iconv-lite');
 const XLSX = require('xlsx');
 import { listarArquivos } from '@/Utils/Mapear';
-import { cadastrar, buscar, edicao, remover, zerar } from '@/Utils/db';
+// import { cadastrar, buscar, edicao, remover, zerar } from '@/Utils/db';
+
+const Db = require('@/Utils/db');
+let db = new Db('nedb');
 
 ipcMain.on('fatura', (event, pdfPath) => {
   let exePath;
@@ -43,8 +46,7 @@ function faturaMultLoop(pastas) {
       if (code !== 0) {
         console.error(`Python script retornou ${code}`);
         reject(`Python script retornou ${code}`);
-      }
-      resolve(JSON.parse(data));
+      } else resolve(JSON.parse(data));
     });
   });
 }
@@ -79,11 +81,13 @@ ipcMain.on('faturaMult', async (event, pastas) => {
 ipcMain.on('addBaseDados', async (event, pastas) => {
   let faturas = [];
   for (let pasta of pastas) {
-    let fatura = await faturaMultLoop(pasta.path);
-    let cadastraDb = {...pasta, ...fatura};
     try {
-      let dados = await buscar({ path:pasta.path });
-      if (!dados.length) cadastrar(cadastraDb);
+      let fatura = await faturaMultLoop(pasta.path);
+      let diretorio = pasta.path.split('\\');
+      let dir = diretorio[diretorio.length - 2];
+      let cadastraDb = {...pasta, ...fatura, referencia:dir};
+      let dados = await db.buscar({ path:pasta.path });
+      if (!dados.length) db.cadastrar(cadastraDb);
     } catch (error) {
       console.error(error);
     }
@@ -131,25 +135,67 @@ ipcMain.on('maximizar', () => {
   }
 });
 
-ipcMain.on('mapear', (event) => {
-  dialog.showOpenDialog({
-    properties: ['openDirectory']
-  }).then(result => {
-    if (!!result.canceled) true;
+ipcMain.on('mapear', async (event) => {
+  try {
+    let result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+
+    if (!!result.canceled) return;
+    event.reply('loadingOn');
     let diretorio = result.filePaths[0];
+    if (diretorio) {
+      let db = new Db('diretorio');
+      await db.zerar();
+      db.cadastrar({diretorio:diretorio}, event, 'salvarDiretorio');
+    }
+    
     let mapa = listarArquivos(diretorio);
+    if (mapa) {
+      let db = new Db('arquvios');
+      await db.zerar();
+      db.cadastrar(mapa);
+    }
     event.reply('mapeado', mapa);
-  }).catch(err => {
-    console.log(err);
-  });
+  } catch (error) {
+    console.error(error);
+  }
+  
+  event.reply('loadingOff');
+});
+
+ipcMain.on('atualizarArquivos', async (event, diretorio) => {
+  try {
+    let mapa = listarArquivos(diretorio);
+    if (mapa) {
+      let db = new Db('arquvios');
+      await db.zerar();
+      db.cadastrar(mapa);
+    }
+    event.reply('mapeado', mapa);
+  } catch (error) {
+    console.error(error);
+  }
+  
+  event.reply('loadingOff');
+});
+
+ipcMain.on('buscarArquivos', (event) => {
+  let db = new Db('arquvios');
+  db.buscar({}, event, 'salvarArquivos');
+});
+
+ipcMain.on('buscarArquivosDiretorio', (event) => {
+  let db = new Db('diretorio');
+  db.buscar({}, event, 'salvarDiretorio');
 });
 
 
 
-ipcMain.on('cadastrar', (event, {set}) => cadastrar(set, event, eventTxt));
-ipcMain.on('buscar', (event, {get, eventTxt}) => buscar(get, event, eventTxt));
+ipcMain.on('cadastrar', (event, {set}) => db.cadastrar(set, event, eventTxt));
+ipcMain.on('buscar', (event, {get, eventTxt}) => db.buscar(get, event, eventTxt));
 ipcMain.on('editar', (event, {get, editar, multi = false, eventTxt}) => {
-  edicao(get, editar, multi, event, eventTxt)
+  db.edicao(get, editar, multi, event, eventTxt)
 });
-ipcMain.on('remover', (event, {get, multi = false, eventTxt}) => remover(get, multi, event, eventTxt));
-ipcMain.on('zerar', () => zerar());
+ipcMain.on('remover', (event, {get, multi = false, eventTxt}) => db.remover(get, multi, event, eventTxt));
+ipcMain.on('zerar', () => db.zerar());

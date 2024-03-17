@@ -12,9 +12,17 @@
     <h1 class="mt-2">Fatura</h1>
     <div v-if="arquivo">
       <v-icon class="mb-3" left>mdi-arrow-right-bottom</v-icon>
-      <span class="grey--text">{{arquivo}}</span>
       
-      <v-btn icon plain color="red" class="mb-1" @click="removerArquivo">
+      <v-breadcrumbs class="d-contents" :items="breadcrumbs">
+        <template v-slot:item="{ item }">
+          <v-breadcrumbs-item href="#" :disabled="item.disabled" @click="abrirSheet(item.arquivo)">
+            {{ item.text }}
+          </v-breadcrumbs-item>
+        </template>
+      </v-breadcrumbs>
+      <!-- <span class="grey--text">{{arquivo}}</span> -->
+      
+      <v-btn icon plain color="red" class="mb-1" @click="fecharFatura">
         <v-icon class="mx-0 red--text">mdi-file-remove</v-icon>
       </v-btn>
     </div>
@@ -125,17 +133,19 @@ export default {
     FaturaAgrupada,
     GraficosFatura,
   },
+  props: {
+    faturaDados: {
+      require: true,
+      type: Object|Array
+    },
+  },
   data() {
     return {
       carregando: false,
-      btnConverter: true,
-      arquivo: '',
+      btnConverter: false,
       checkboxGroupBy: false,
       groupBy: null,
       diasAgrupadas: [],
-      transAgrupEntradas: [],
-      transAgrup: [],
-      transacoes: [],
       headers: [
         {
           text: 'Nome',
@@ -149,55 +159,50 @@ export default {
       ],
       search: null,
       pdfPath: null,
-      total: 0.00,
-      pagamentos: 0.00,
-      estornos: 0.00,
-      entradas: 0.00,
-      saidas: 0.00,
     }
   },
   created() {
     let self = this;
-    window.api.on('pdfJson', (json) => {
-      let data = JSON.parse(json);
-      self.total = data.total;
-      self.pagamentos = data.pagamentos;
-      self.estornos = data.estornos;
-      self.entradas = data.entradas;
-      self.saidas = data.saidas;
-      self.transacoes = data.transacoes;
-      self.agruparTransacoes(data.transacoes, 1);
-      self.agruparTransacoes(data.transacoes, 0);
-      self.loading = false;
-    });
+    console.log(this.faturaDados);
     window.api.on('arquivoSalvo', (arquivo) => {
       self.notificacao(arquivo, 'success');
     });
   },
+  computed: {
+    referencia() { return this.faturaDados.referencia },
+    arquivo() { return this.faturaDados.name },
+    path() { return this.faturaDados.path },
+    total() { return this.faturaDados.total },
+    pagamentos() { return this.faturaDados.pagamentos },
+    estornos() { return this.faturaDados.estornos },
+    entradas() { return this.faturaDados.entradas },
+    saidas() { return this.faturaDados.saidas },
+    transacoes() { return this.faturaDados.transacoes },
+    transAgrup() { return this.agruparTransacoes(this.faturaDados.transacoes, 1) },
+    transAgrupEntradas() { return this.agruparTransacoes(this.faturaDados.transacoes, 0) },
+    breadcrumbs() {
+      return [
+        {
+          text: this.faturaDados.referencia,
+          disabled: false,
+          arquivo: 0,
+        },
+        {
+          text: this.faturaDados.name,
+          disabled: true,
+          arquivo: 1,
+        },
+      ]
+    },
+  },
   methods: {
     dinheiro,
+    fecharFatura() { this.$emit('fecharFatura', false); },
+    abrirSheet(arquivo) { if (!arquivo) this.$emit('abrirSheet', true); },
     exportJson() { window.api.send('exportarXlsx', this.transacoes) },
-    removerArquivo() {
-      this.loading = false;
-      this.btnConverter = true;
-      this.arquivo = '';
-      this.checkboxGroupBy = false;
-      this.groupBy = null;
-      this.diasAgrupadas = [];
-      this.transAgrupEntradas = [];
-      this.transAgrup = [];
-      this.transacoes = [];
-      this.search = null;
-      this.pdfPath = null;
-      this.total = 0.00;
-      this.pagamentos = 0.00;
-      this.estornos = 0.00;
-      this.entradas = 0.00;
-      this.saidas = 0.00;
-    },
     atualizarDados(arquivo, btn=false) {
-      this.arquivo = arquivo.name;
-      this.btnConverter = btn;
+      // this.arquivo = arquivo.name;
+      // this.btnConverter = btn;
     },
     converterPdfParaJson() {
       this.loading = true;
@@ -224,15 +229,13 @@ export default {
 
       if (tipo == "1") {
         let agrupadas = [...new Set(result)];
-        this.transAgrup = agrupadas
-
         let datas = transacoes.map(obj => obj.data);
         let datasUnicas = [...new Set(datas)];
-
         this.diasAgrupadas = datasUnicas
+        return agrupadas
       } else {
         let agrupadas = [...new Set(result)];
-        this.transAgrupEntradas = agrupadas
+        return agrupadas
       }
 
     },

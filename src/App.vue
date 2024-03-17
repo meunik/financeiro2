@@ -41,7 +41,7 @@
     >
       {{ item.text }}
       <template v-slot:action="{ attrs }">
-        <v-btn icon text v-bind="attrs" @click="removeNotificacao(i)">
+        <v-btn icon text v-bind="attrs" @click="removeNotificacao(item.id)">
           <v-icon class="mx-0">mdi-close</v-icon>
         </v-btn>
       </template>

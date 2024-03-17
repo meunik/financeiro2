@@ -10,6 +10,9 @@
       <v-list class="pt-0">
         <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
         <v-subheader class="pt-5">
+          <v-btn v-if="mapaDir" color="secondary" class="mr-2 px-2" @click="atualizarArquivos()" :loading="loading">
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
           <v-btn color="secondary" @click="listarArquivos()" :loading="loading">
             <v-icon left>mdi-file-send</v-icon>
             Remapear
@@ -19,7 +22,7 @@
 
           <v-row>
             <v-col class="py-1 flex-end">
-              <v-btn v-if="selection.length" color="accent" @click="mult()" :loading="loading">
+              <v-btn v-if="selection.length" disabled color="accent" @click="mult()" :loading="loading">
                 <v-icon left>mdi-file-send</v-icon>
                 Mult
               </v-btn>
@@ -35,10 +38,6 @@
         <v-subheader class="pt-5">
           <h3 class="pl-4">Selecione o(s) Arquivo(s)</h3>
         </v-subheader>
-        <!-- <template v-if="!selection.length">No nodes selected.</template>
-        <template v-else>
-          <div v-for="node in selection" :key="node.id">{{ node.name }}</div>
-        </template> -->
 
         <template>
           <v-treeview
@@ -51,7 +50,7 @@
             item-key="caminho"
             return-object
             open-on-click
-            @update:active="abrirDialog"
+            @update:active="abrir"
           >
             <template v-slot:prepend="{ item, open }">
               <v-icon v-if="!item.file">
@@ -72,36 +71,52 @@
         <v-icon left>mdi-file-send</v-icon>
         Mapear
       </v-btn>
-      <!-- <v-btn class="mx-2" color="deep-purple" @click="atualizarBaseDados()" :loading="loading">
-        <v-icon left>mdi-database-import</v-icon>
-        Atualizar Base de Dados
-      </v-btn> -->
     </div>
 
     <v-divider class="mt-5"></v-divider>
 
-    <div>
-      <v-btn color="green" @click="cadastrar()" :loading="loading">
-        <v-icon left>mdi-file-send</v-icon>
-        Add
-      </v-btn>
-      <v-btn class="ml-2" color="blue" @click="buscar()" :loading="loading">
-        <v-icon left>mdi-file-send</v-icon>
-        Buscar
-      </v-btn>
-      <v-btn class="ml-2" color="orange" @click="editar()" :loading="loading">
-        <v-icon left>mdi-file-send</v-icon>
-        Editar
-      </v-btn>
-      <v-btn class="ml-2" color="red" @click="remover()" :loading="loading">
-        <v-icon left>mdi-file-send</v-icon>
-        Deletar
-      </v-btn>
-      <v-btn class="ml-2" color="black" @click="zerar()" :loading="loading">
-        <v-icon left>mdi-file-send</v-icon>
-        zerar
-      </v-btn>
-    </div>
+    
+    <!-- <v-row>
+      <v-col class="py-1">
+        <v-btn color="green" @click="cadastrar()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          Add
+        </v-btn>
+      </v-col>
+      <v-col class="py-1">
+        <v-btn color="blue" @click="buscar()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          Buscar
+        </v-btn>
+      </v-col>
+      <v-col class="py-1">
+        <v-btn color="orange" @click="editar()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          Editar
+        </v-btn>
+      </v-col>
+      <v-col class="py-1">
+        <v-btn color="red" @click="remover()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          Deletar
+        </v-btn>
+      </v-col>
+      <v-col class="py-1">
+        <v-btn color="black" @click="zerar()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          zerar
+        </v-btn>
+      </v-col>
+    </v-row>
+    
+    <v-row>
+      <v-col class="py-1">
+        <v-btn color="blue" @click="buscarArquivos()" :loading="loading">
+          <v-icon left>mdi-file-send</v-icon>
+          Buscar
+        </v-btn>
+      </v-col>
+    </v-row> -->
 
     <v-dialog v-model="dialog" persistent max-width="300px">
       <v-card>
@@ -128,8 +143,14 @@
       </v-card>
     </v-dialog>
 
-    <Fatura v-show="fatura" ref="faturaRef" />
-    <MultFatura v-show="multFatura" ref="multFaturaRef" />
+    <Fatura
+      v-if="fatura"
+      :faturaDados="faturaDados"
+      ref="faturaRef"
+      @abrirSheet="sheet = $event"
+      @fecharFatura="fatura = $event"
+    />
+    <!-- <MultFatura v-show="multFatura" ref="multFaturaRef" /> -->
   </div>
 </template>
 
@@ -165,12 +186,12 @@ export default {
       },
 
       sheet: false,
-      selection: [],
       fatura: false,
+      faturaDados: {},
       multFatura: false,
       dirtorio: '',
       search: '',
-      mapa: [],
+      selection: [],
       active: [],
       files: {
         html: 'mdi-language-html5',
@@ -190,43 +211,56 @@ export default {
   },
   created() {
     let self = this;
+    window.api.on('salvarDiretorio', (dados, msg, erro, erroMsg) => {
+      if (dados.length) self.mapaDir = dados[0].diretorio;
+      else self.mapaDir = dados.diretorio;
+    });
+    window.api.on('salvarArquivos', (dados, msg, erro, erroMsg) => {
+      dados.sort((a, b) => a.name.localeCompare(b.name));
+      self.mapa = dados;
+      self.notificacao('Ataulizado', null, 2000);
+    });
     window.api.on('buscarRetorno', (dados, msg, erro, erroMsg) => {
-      console.log(dados);
+      // console.log(dados);
+      self.dados = dados;
     });
-    window.api.on('loadingOff', (json) => {
-      self.loading = false;
-    });
+    window.api.on('loadingOn', (json) => self.loading = true);
+    window.api.on('loadingOff', (json) => self.loading = false);
     window.api.on('mapeado', (json) => {
       self.mapa = json;
       self.sheet = true;
       self.loading = false;
+      self.notificacao('Ditrório atualizado', 'success', 2000);
     });
-    window.api.on('faturaMultRetorno', (separados, agrupados) => {
-      console.log(separados);
-      console.log('faturaMultRetorno');
-      self.restaComponetes();
-      self.dialog = false;
-      self.sheet = false;
-      self.multFatura = true;
-      self.$refs.multFaturaRef.atualizarDados(this.selection);
+    window.api.on('faturaMultRetorno', async (separados, agrupados) => {
+      // self.restaComponetes();
+      // self.dialog = false;
+      // self.sheet = false;
+      // self.multFatura = true;
+      // if (self.$refs.multFaturaRef) self.$refs.multFaturaRef.atualizarDados(this.selection);
     });
+    window.api.send('buscarArquivosDiretorio');
+    window.api.send('buscarArquivos');
+    window.api.send('buscar', { eventTxt: 'buscarRetorno' });
   },
   methods: {
+    atualizarArquivos() {
+      this.loading = true;
+      window.api.send('atualizarArquivos', this.mapaDir)
+    },
     listarArquivos:() => window.api.send('mapear'),
     atualizarBaseDados () {
       this.loading = true;
       window.api.send('addBaseDados', this.selection)
     },
-    cadastrar:() => window.api.send('cadastrar', { set: { name: 'Nome do Usuário', age: 20 } }),
 
-    buscar:() => window.api.send('buscar', { eventTxt: 'buscarRetorno' }),
-    // buscar:() => window.api.send('buscar', { get: { age: 20 } }),
-    // buscar:() => window.api.send('buscar'),
+    // cadastrar:() => window.api.send('cadastrar', { set: { name: 'Nome do Usuário', age: 20 } }),
+    // buscar:() => window.api.send('buscar', { eventTxt: 'buscarRetorno' }),
+    // editar:() => window.api.send('editar', { get: { age: 20 }, editar: { $set: { age: 21 } }}),
+    // remover:() => window.api.send('remover', { get: { _id: "mqplMF2WnAmyOoJu" } }),
+    // zerar:() => window.api.send('zerar'),
 
-    editar:() => window.api.send('editar', { get: { age: 20 }, editar: { $set: { age: 21 } }}),
-    remover:() => window.api.send('remover', { get: { _id: "mqplMF2WnAmyOoJu" } }),
-    zerar:() => window.api.send('zerar'),
-
+    buscarArquivos:() => window.api.send('buscarArquivos'),
     mult() {
       this.loading = true;
       console.log(this.selection);
@@ -247,8 +281,9 @@ export default {
         default: break;
       }
     },
-    abrir(item, tipo) {
+    abrirFaturaImportada(item, tipo) {
       this.restaComponetes()
+      this.loading = true;
       this.dialog = false;
       this.sheet = false;
       if (item.length == 0) return null;
@@ -263,6 +298,15 @@ export default {
 
         default: break;
       }
+    },
+    async abrir(item, tipo) {
+      this.restaComponetes()
+      this.dialog = false;
+      this.sheet = false;
+      let doc = item[0];
+      let dado = this.dados.filter(v => (v.path == doc.path));
+      this.faturaDados = dado[0];
+      this.fatura = true;
     },
   }
 }

@@ -11,6 +11,18 @@ export let Model = {
     notificacaoId: {
       get() { return this.$store.getters.notificacaoId; },
       set(value) { this.$store.commit('notificacaoId', value); }
+    },
+    mapa: {
+      get() { return this.$store.getters.mapa; },
+      set(value) { this.$store.commit('mapa', value); }
+    },
+    mapaDir: {
+      get() { return this.$store.getters.mapaDir; },
+      set(value) { this.$store.commit('mapaDir', value); }
+    },
+    dados: {
+      get() { return this.$store.getters.dados; },
+      set(value) { this.$store.commit('dados', value); }
     }
   },
   methods: {
@@ -25,9 +37,7 @@ export let Model = {
     },
     removeNotificacao(id) {
       let index = this.notificacoes.findIndex(notificacao => notificacao.id === id);
-      if (index > -1) {
-        this.notificacoes.splice(index, 1);
-      }
+      if (index > -1) this.notificacoes.splice(index, 1);
     }
   }
 }
