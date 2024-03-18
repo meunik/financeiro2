@@ -56,7 +56,7 @@ class Db {
     });
   }
   
-  zerar() {
+  zerar(db='') {
     return new Promise((resolve, reject) => {
       this.db.remove({}, { multi: true }, (err, numRemoved) => {
         this.db.loadDatabase((err) => { 
@@ -64,7 +64,7 @@ class Db {
             console.error('Erro ao zerar o banco:', err);
             reject(err);
           } else {
-            console.log('Banco Zerado');
+            console.log(`Banco '${db}' Zerado`);
             resolve();
           }
         });

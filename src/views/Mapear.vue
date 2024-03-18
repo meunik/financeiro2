@@ -75,48 +75,18 @@
 
     <v-divider class="mt-5"></v-divider>
 
-    
-    <!-- <v-row>
-      <v-col class="py-1">
-        <v-btn color="green" @click="cadastrar()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          Add
-        </v-btn>
-      </v-col>
-      <v-col class="py-1">
-        <v-btn color="blue" @click="buscar()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          Buscar
-        </v-btn>
-      </v-col>
-      <v-col class="py-1">
-        <v-btn color="orange" @click="editar()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          Editar
-        </v-btn>
-      </v-col>
-      <v-col class="py-1">
-        <v-btn color="red" @click="remover()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          Deletar
-        </v-btn>
-      </v-col>
-      <v-col class="py-1">
-        <v-btn color="black" @click="zerar()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          zerar
-        </v-btn>
-      </v-col>
-    </v-row>
-    
-    <v-row>
-      <v-col class="py-1">
-        <v-btn color="blue" @click="buscarArquivos()" :loading="loading">
-          <v-icon left>mdi-file-send</v-icon>
-          Buscar
-        </v-btn>
-      </v-col>
-    </v-row> -->
+    <div v-if="btnConverter">
+      <!-- <v-file-input class="mt-2" label="Arquivo" v-model="pdfPath"></v-file-input> -->
+      <v-btn class="mt-2" color="secondary" @click="dialogCpfSenha = true">
+        <v-icon left>mdi-file-send</v-icon>
+        Converter
+      </v-btn>
+      <!-- <v-btn class="mt-2 ml-2" color="secondary" @click="dialogCodigo = true">
+        <v-icon left>mdi-file-send</v-icon>
+        dialog
+      </v-btn> -->
+      <v-divider class="mt-5"></v-divider>
+    </div>
 
     <v-dialog v-model="dialog" persistent max-width="300px">
       <v-card>
@@ -139,6 +109,59 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="red darken-1" text @click="dialog = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogCpfSenha" persistent max-width="300px">
+      <v-card>
+        <v-card-title class="text-h5">
+          Gerar Certificado
+        </v-card-title>
+        <v-card-text>
+          
+          <v-text-field
+            label="Digite seu CPF"
+            v-model="cpf"
+            hint="Somente os números"
+            type="number"
+          ></v-text-field>
+          <v-text-field
+            v-model="senha"
+            :append-icon="mostrarSenha ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="mostrarSenha ? 'text' : 'password'"
+            label="Senha"
+            counter
+            @click:append="mostrarSenha = !mostrarSenha"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="dialogCpfSenha = false">Fechar</v-btn>
+          <v-btn color="green darken-1" text :disabled="(cpf && senha)?false:true" @click="scriptCertificado()">enviar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogCodigo" persistent max-width="350px">
+      <v-card>
+        <v-card-title class="text-h5">Código de acesso</v-card-title>
+        <v-card-text>
+          <v-subheader v-if="codigoEmail" class="px-0 flex-wrap">
+            <span class="white-space-nowrap">Enviado para:</span>
+            <span class="ml-1 primary--text">{{ codigoEmail }}</span>
+          </v-subheader>
+          <v-subheader v-else class="px-0">
+            <span class="white-space-nowrap">Enviado email</span>
+            <v-progress-linear class="ml-2" color="primary" indeterminate rounded height="6"></v-progress-linear>
+          </v-subheader>
+          <v-subheader class="px-0 mb-2">Digite o código recebido por e-mail:</v-subheader>
+          <v-otp-input v-model="codigo" :length="codLength" dark></v-otp-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="cancelScriptCodigo()">Fechar</v-btn>
+          <v-btn color="green darken-1" text :disabled="!isActive" @click="scriptCertificadoCodigo()">enviar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -207,46 +230,86 @@ export default {
         xlsx: 'mdi-microsoft-excel',
         xlsm: 'mdi-microsoft-excel',
       },
+      
+      btnConverter: true,
+      pdfPath: null,
+
+      dialogCpfSenha: false,
+      cpf: '',
+      senha: '',
+      mostrarSenha: false,
+      dialogCodigo: false,
+      codigoEmail: null,
+      codigo: '',
+      codLength: 6,
     }
   },
   created() {
-    let self = this;
+    window.api.on('dialogCodigo', (email, abredialogCodigo) => {
+      if (abredialogCodigo) {
+        this.codigoEmail = (email.length > 2) ? email : null;
+        this.dialogCodigo = true;
+      } else this.cancelScriptCodigo();
+    });
+
+
     window.api.on('salvarDiretorio', (dados, msg, erro, erroMsg) => {
-      if (dados.length) self.mapaDir = dados[0].diretorio;
-      else self.mapaDir = dados.diretorio;
+      if (dados.length) this.mapaDir = dados[0].diretorio;
+      else this.mapaDir = dados.diretorio;
     });
     window.api.on('salvarArquivos', (dados, msg, erro, erroMsg) => {
       dados.sort((a, b) => a.name.localeCompare(b.name));
-      self.mapa = dados;
-      self.notificacao('Ataulizado', null, 2000);
+      this.mapa = dados;
+      this.notificacao('Ataulizado', null, 2000);
     });
     window.api.on('buscarRetorno', (dados, msg, erro, erroMsg) => {
       // console.log(dados);
-      self.dados = dados;
+      this.dados = dados;
     });
-    window.api.on('loadingOn', (json) => self.loading = true);
-    window.api.on('loadingOff', (json) => self.loading = false);
+    window.api.on('loadingOn', (json) => this.loading = true);
+    window.api.on('loadingOff', (json) => this.loading = false);
     window.api.on('mapeado', (json) => {
-      self.mapa = json;
-      self.sheet = true;
-      self.loading = false;
-      self.notificacao('Ditrório atualizado', 'success', 2000);
+      this.mapa = json;
+      this.sheet = true;
+      this.loading = false;
+      this.notificacao('Ditrório atualizado', 'success', 2000);
     });
     window.api.on('faturaMultRetorno', async (separados, agrupados) => {
-      // self.restaComponetes();
-      // self.dialog = false;
-      // self.sheet = false;
-      // self.multFatura = true;
-      // if (self.$refs.multFaturaRef) self.$refs.multFaturaRef.atualizarDados(this.selection);
+      // this.restaComponetes();
+      // this.dialog = false;
+      // this.sheet = false;
+      // this.multFatura = true;
+      // if (this.$refs.multFaturaRef) this.$refs.multFaturaRef.atualizarDados(this.selection);
     });
     window.api.send('buscarArquivosDiretorio');
     window.api.send('buscarArquivos');
     window.api.send('buscar', { eventTxt: 'buscarRetorno' });
   },
+  computed: {
+    isActive() { return this.codigo.length === this.codLength },
+  },
   methods: {
-    atualizarArquivos() {
+    scriptCertificado() {
+      this.dialogCpfSenha = false;
+      this.dialogCodigo = true;
       this.loading = true;
-      window.api.send('atualizarArquivos', this.mapaDir)
+      window.api.send('testePython');
+    },
+    cancelScriptCodigo() {
+      this.loading = false;
+      this.dialogCodigo = false;
+      this.cpf = '';
+      this.senha = '';
+      this.codigoEmail = '';
+    },
+    scriptCertificadoCodigo() {
+      this.dialogCodigo = false;
+      window.api.send('testePythonCodigo', this.codigo);
+    },
+    async atualizarArquivos() {
+      this.loading = true;
+      await window.api.send('atualizarArquivos', this.mapaDir)
+      this.codigo = '';
     },
     listarArquivos:() => window.api.send('mapear'),
     atualizarBaseDados () {

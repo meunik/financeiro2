@@ -54,6 +54,10 @@ import { Model } from "@/store/Model"
 
 export default {
   mixins: [Model],
+  created() {
+    window.api.on('attPagina', () => this.atualizarPagina());
+    window.api.on('notificacao', (msg, cor, tempo) => this.notificacao(msg, cor, tempo));
+  },
   computed: {
     systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' }
   },

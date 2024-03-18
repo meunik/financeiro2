@@ -29,3 +29,6 @@ FaturaNu.exe
 /FaturaNu.exe
 /app.asar
 app.asar
+
+# db
+/path

@@ -8,6 +8,51 @@ import { listarArquivos } from '@/Utils/Mapear';
 
 const Db = require('@/Utils/db');
 let db = new Db('nedb');
+let python;
+
+ipcMain.on('testePython', (event, cpf, senha) => {
+  python = spawn('python', ['H:\\Projetos\\Electron\\financeiro2\\src\\python\\Teste.py', cpf, senha]);
+  // let exePath;
+  // if (process.env.NODE_ENV !== 'production') exePath = path.join(__static, 'cli.exe');
+  // else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'cli.exe');
+  // python = spawn(exePath, [cpf, senha]);
+
+  let abredialogCodigo = true;
+  python.stdout.on('data', (data) => {
+    if (abredialogCodigo && (data.length > 2)) {
+      console.log(`stdout:`);
+      console.log(data.toString());
+      console.log('---');
+      console.log(data);
+      event.reply('dialogCodigo', data.toString(), abredialogCodigo);
+      abredialogCodigo = false;
+    } else {
+      console.log(data);
+      event.reply('dialogCodigo', null, false);
+      event.reply('notificacao', 'Falha ao gerar certificado.', 'error', 2000);
+    }
+  });
+
+  python.stderr.on('data', (data) => {
+    event.reply('notificacao', 'Falha ao gerar certificado.', 'error', 2000);
+  });
+  
+  python.on('close', (code) => {
+    //
+  });
+});
+ipcMain.on('testePythonCodigo', (event, codigo) => {
+  python.stdin.write(`${codigo}\n`);
+
+  python.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+    event.reply('notificacao', 'Certificado gerado com sucesso!', 'success', 2000);
+  });
+  
+  python.on('close', (code) => {
+    event.reply('loadingOff');
+  });
+});
 
 ipcMain.on('fatura', (event, pdfPath) => {
   let exePath;
@@ -88,12 +133,14 @@ ipcMain.on('addBaseDados', async (event, pastas) => {
       let cadastraDb = {...pasta, ...fatura, referencia:dir};
       let dados = await db.buscar({ path:pasta.path });
       if (!dados.length) db.cadastrar(cadastraDb);
+      else db.edicao({ path:pasta.path }, cadastraDb, true)
     } catch (error) {
       console.error(error);
     }
   }
   
   event.reply('loadingOff');
+  event.reply('attPagina');
 });
 
 ipcMain.on('exportarXlsx', async (event, dados) => {
@@ -146,14 +193,14 @@ ipcMain.on('mapear', async (event) => {
     let diretorio = result.filePaths[0];
     if (diretorio) {
       let db = new Db('diretorio');
-      await db.zerar();
+      await db.zerar('diretorio');
       db.cadastrar({diretorio:diretorio}, event, 'salvarDiretorio');
     }
     
     let mapa = listarArquivos(diretorio);
     if (mapa) {
       let db = new Db('arquvios');
-      await db.zerar();
+      await db.zerar('arquvios');
       db.cadastrar(mapa);
     }
     event.reply('mapeado', mapa);
@@ -169,7 +216,7 @@ ipcMain.on('atualizarArquivos', async (event, diretorio) => {
     let mapa = listarArquivos(diretorio);
     if (mapa) {
       let db = new Db('arquvios');
-      await db.zerar();
+      await db.zerar('arquvios');
       db.cadastrar(mapa);
     }
     event.reply('mapeado', mapa);

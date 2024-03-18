@@ -99,6 +99,7 @@
 .mr-48 {margin-right: 48px;}
 
 
+.flex-wrap {flex-wrap: wrap;}
 .nowrap {flex-wrap: nowrap;}
 .text-nowrap {text-wrap: nowrap;}
 .white-space-nowrap {white-space: nowrap;}

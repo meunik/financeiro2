@@ -169,6 +169,7 @@ export default {
     });
   },
   computed: {
+    vencimento() { return this.faturaDados.vencimento },
     referencia() { return this.faturaDados.referencia },
     arquivo() { return this.faturaDados.name },
     path() { return this.faturaDados.path },
