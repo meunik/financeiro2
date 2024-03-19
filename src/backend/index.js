@@ -10,24 +10,27 @@ const Db = require('@/Utils/db');
 let db = new Db('nedb');
 let python;
 
-ipcMain.on('testePython', (event, cpf, senha) => {
-  python = spawn('python', ['H:\\Projetos\\Electron\\financeiro2\\src\\python\\Teste.py', cpf, senha]);
-  // let exePath;
-  // if (process.env.NODE_ENV !== 'production') exePath = path.join(__static, 'cli.exe');
-  // else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'cli.exe');
-  // python = spawn(exePath, [cpf, senha]);
+ipcMain.on('testePython', (event, {cpf, senha}) => {
+  // python = spawn('python', ['C:/DEV/Electron/financeiro2/src/python/Teste.py', cpf, senha]);
+  // python = spawn('python', ['H:/Projetos/Electron/financeiro2/src/python/Teste.py', cpf, senha]);
+  cpf = cpf.toString();
+  senha = senha.toString();
+
+  let exePath;
+  if (process.env.NODE_ENV !== 'production') exePath = path.join(__static, 'cli.exe');
+  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'cli.exe');
+  python = spawn(exePath, [cpf, senha]);
 
   let abredialogCodigo = true;
   python.stdout.on('data', (data) => {
     if (abredialogCodigo && (data.length > 2)) {
       console.log(`stdout:`);
       console.log(data.toString());
-      console.log('---');
-      console.log(data);
       event.reply('dialogCodigo', data.toString(), abredialogCodigo);
       abredialogCodigo = false;
     } else {
-      console.log(data);
+      console.log(`stdout-error:`);
+      console.log(data.toString());
       event.reply('dialogCodigo', null, false);
       event.reply('notificacao', 'Falha ao gerar certificado.', 'error', 2000);
     }
@@ -42,10 +45,10 @@ ipcMain.on('testePython', (event, cpf, senha) => {
   });
 });
 ipcMain.on('testePythonCodigo', (event, codigo) => {
-  python.stdin.write(`${codigo}\n`);
+  python.stdin.write(`${codigo.toString()}\n`);
 
   python.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
+    console.log(`stdout: ${data.toString()}`);
     event.reply('notificacao', 'Certificado gerado com sucesso!', 'success', 2000);
   });
   

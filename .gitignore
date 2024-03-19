@@ -32,3 +32,4 @@ app.asar
 
 # db
 /path
+cert.p12

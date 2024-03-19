@@ -293,7 +293,7 @@ export default {
       this.dialogCpfSenha = false;
       this.dialogCodigo = true;
       this.loading = true;
-      window.api.send('testePython');
+      window.api.send('testePython', { cpf: this.cpf, senha: this.senha });
     },
     cancelScriptCodigo() {
       this.loading = false;
