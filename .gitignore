@@ -29,7 +29,7 @@ FaturaNu.exe
 /FaturaNu.exe
 /app.asar
 app.asar
-
+/scripts/*
 # db
 /path
 cert.p12

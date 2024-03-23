@@ -2,11 +2,19 @@ from pynubank import Nubank, MockHttpClient
 
 from datetime import datetime
 import pandas as pd
+import sys
 from dateutil.relativedelta import relativedelta
+
+
+cert = sys.argv[1]
+
+# cpf = sys.argv[1]
+# password = sys.argv[2]
 
 nu = Nubank(MockHttpClient())
 # nu = Nubank()
-nu.authenticate_with_cert("16072234739", "K290605n", "cert.p12")
+nu.authenticate_with_cert("16072234739", "K290605n", cert)
+# nu.authenticate_with_cert("16072234739", "K290605n", "./teste/cert.p12")
 print('------------------------------------------------------------------')
 print('------------------------------------------------------------------')
 print('------------------------------------------------------------------')
@@ -21,26 +29,12 @@ print('------------------------------------------------------------------')
 
 
 # Lista de dicionários contendo todas as transações de seu cartão de crédito
-# card_statements = nu.get_card_statements()
-# print(card_statements)
+card_statements = nu.get_card_statements()
+print(card_statements)
 
 
 
-no_of_months = 12  # Quantos meses para trás queremos obter os dados
-yield_data = []
-now = datetime.now()
 
-# Obtem os dados dos ultimos 12 meses
-for i in range(no_of_months):
-    ref_date = datetime(now.year, now.month, 1) - relativedelta(months=i)
-    yield_data.append({
-        'date': ref_date.strftime('%Y-%m-%d'),
-        'yield': nu.get_account_investments_yield(ref_date)
-    })
-
-    df = pd.DataFrame(yield_data)
-
-print(yield_data)
 # df['date'] = pd.to_datetime(df['date'])
 # df.index = df.date
 # df.groupby(pd.Grouper(freq='M')).sum().plot()

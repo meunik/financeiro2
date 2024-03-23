@@ -8,7 +8,8 @@
         :rotate="rotate"
         :estilo="`${estilo}`"
         :ativo="ativo"
-        :class="`${(!!$slots.default)?'m-icon':''} ${classesIcone}`"
+        :cor="cor"
+        :class="`${(!!$slots.default)?'m-icon':''} ${classesIcone} d-flex align-items-center`"
       />
       <span :class="`${(!!$slots.default)?'d-contents':''} ${classesSpan}`"><slot></slot></span>
     </div>
@@ -66,6 +67,9 @@
       ativo: {
         type: Boolean,
         default: false,
+      },
+      cor: {
+        type: String,
       },
       classesDiv: {
         type: String,

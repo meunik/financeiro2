@@ -123,7 +123,7 @@
 
 <script>
 import FaturaAgrupada from '@/views/FaturaAgrupada.vue'
-import GraficosFatura from '@/components/Graficos/GraficosFatura.vue'
+import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
 import { dinheiro } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
 

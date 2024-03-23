@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Mapear />
+    <!-- <Mapear /> -->
     <!-- <Fatura /> -->
   </div>
 </template>

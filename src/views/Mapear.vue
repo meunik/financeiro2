@@ -77,13 +77,37 @@
 
     <div v-if="btnConverter">
       <!-- <v-file-input class="mt-2" label="Arquivo" v-model="pdfPath"></v-file-input> -->
+
+      <!-- Gerar Certificado -->
       <v-btn class="mt-2" color="secondary" @click="dialogCpfSenha = true">
         <v-icon left>mdi-file-send</v-icon>
-        Converter
+        Gerar Certificado
       </v-btn>
-      <!-- <v-btn class="mt-2 ml-2" color="secondary" @click="dialogCodigo = true">
+
+
+      <!-- <v-btn class="mt-2 ml-2" color="#c5431e" @click="salvarGastosCartao()">
         <v-icon left>mdi-file-send</v-icon>
-        dialog
+        busca fatura
+      </v-btn>
+
+      <v-btn class="mt-2 ml-2" color="#c5431e" @click="listarGastosCartao()">
+        <v-icon left>mdi-file-send</v-icon>
+        listarGastosCartao
+      </v-btn> -->
+
+      <v-btn class="mt-2 ml-2" color="#c5431e" @click="salvarFaturasCartao()">
+        <v-icon left>mdi-file-send</v-icon>
+        salvarFaturasCartao
+      </v-btn>
+
+      <v-btn class="mt-2 ml-2" color="#c5431e" @click="listarfaturasCartao()">
+        <v-icon left>mdi-file-send</v-icon>
+        listarfaturasCartao
+      </v-btn>
+
+      <!-- <v-btn class="mt-2 ml-2" color="#c5431e" @click="salvarTransacoes()">
+        <v-icon left>mdi-file-send</v-icon>
+        salvarTransacoes
       </v-btn> -->
       <v-divider class="mt-5"></v-divider>
     </div>
@@ -173,21 +197,20 @@
       @abrirSheet="sheet = $event"
       @fecharFatura="fatura = $event"
     />
-    <!-- <MultFatura v-show="multFatura" ref="multFaturaRef" /> -->
   </div>
 </template>
 
 <script>
 import Fatura from '@/views/Fatura.vue'
-import MultFatura from '@/views/MultFatura.vue'
 import Icone from '@/assets/icones/Icone.vue'
 import { Model } from "@/store/Model"
+import gastosCartao from '@raiz/database/json/nubank/GastosCartao.json'
+import faturasCartao from '@raiz/database/json/nubank/FaturasCartao.json'
  
 export default {
   mixins: [Model],
   components: {
     Fatura,
-    MultFatura,
     Icone,
   },
   data() {
@@ -242,6 +265,9 @@ export default {
       codigoEmail: null,
       codigo: '',
       codLength: 6,
+
+      gastosCartao: gastosCartao,
+      faturasCartao: faturasCartao,
     }
   },
   created() {
@@ -253,23 +279,33 @@ export default {
     });
 
 
-    window.api.on('salvarDiretorio', (dados, msg, erro, erroMsg) => {
+    window.api.on('buscaDiretorio', ({dados}) => {
       if (dados.length) this.mapaDir = dados[0].diretorio;
       else this.mapaDir = dados.diretorio;
     });
-    window.api.on('salvarArquivos', (dados, msg, erro, erroMsg) => {
+    window.api.on('listarArquivos', ({dados}) => {
       dados.sort((a, b) => a.name.localeCompare(b.name));
       this.mapa = dados;
       this.notificacao('Ataulizado', null, 2000);
     });
-    window.api.on('buscarRetorno', (dados, msg, erro, erroMsg) => {
+
+    // APAGAR
+    window.api.on('buscarRetorno', ({dados}) => {
       // console.log(dados);
       this.dados = dados;
     });
-    window.api.on('loadingOn', (json) => this.loading = true);
-    window.api.on('loadingOff', (json) => this.loading = false);
-    window.api.on('mapeado', (json) => {
-      this.mapa = json;
+
+    window.api.on('exibeFaturaImportada', ({dados, transportar}) => {
+      this.dialog = false;
+      this.sheet = false;
+      let doc = transportar[0];
+      let dado = dados.filter(v => (v.path == doc.path));
+      this.faturaDados = dado[0];
+      this.fatura = true;
+      this.loading = false;
+    });
+    window.api.on('mapeado', (mapa) => {
+      this.mapa = mapa;
       this.sheet = true;
       this.loading = false;
       this.notificacao('Ditrório atualizado', 'success', 2000);
@@ -281,19 +317,43 @@ export default {
       // this.multFatura = true;
       // if (this.$refs.multFaturaRef) this.$refs.multFaturaRef.atualizarDados(this.selection);
     });
+
+    window.api.on('loadingOn', () => this.loading = true);
+    window.api.on('loadingOff', () => this.loading = false);
+
     window.api.send('buscarArquivosDiretorio');
     window.api.send('buscarArquivos');
-    window.api.send('buscar', { eventTxt: 'buscarRetorno' });
   },
   computed: {
     isActive() { return this.codigo.length === this.codLength },
   },
   methods: {
+    listarGastosCartao() {
+      console.log(this.gastosCartao);
+      // console.log(JSON.parse(JSON.stringify(this.gastosCartao)));
+    },
+    listarfaturasCartao() {
+      // console.log(this.faturasCartao);
+      console.log(JSON.parse(JSON.stringify(this.gastosCartao)));
+      console.log(JSON.parse(JSON.stringify(this.faturasCartao)));
+    },
+    salvarFaturasCartao() {
+      this.loading = true;
+      window.api.send('salvarFaturasCartao');
+    },
+    // salvarTransacoes() {
+    //   this.loading = true;
+    //   window.api.send('salvarTransacoes');
+    // },
+    salvarGastosCartao() {
+      this.loading = true;
+      window.api.send('salvarGastosCartao');
+    },
     scriptCertificado() {
       this.dialogCpfSenha = false;
       this.dialogCodigo = true;
       this.loading = true;
-      window.api.send('testePython', { cpf: this.cpf, senha: this.senha });
+      window.api.send('certificadoNubank', { cpf: this.cpf, senha: this.senha });
     },
     cancelScriptCodigo() {
       this.loading = false;
@@ -303,8 +363,9 @@ export default {
       this.codigoEmail = '';
     },
     scriptCertificadoCodigo() {
+      this.loading = true;
       this.dialogCodigo = false;
-      window.api.send('testePythonCodigo', this.codigo);
+      window.api.send('certificadoNubankCodigo', this.codigo);
     },
     async atualizarArquivos() {
       this.loading = true;
@@ -317,9 +378,9 @@ export default {
       window.api.send('addBaseDados', this.selection)
     },
 
-    // cadastrar:() => window.api.send('cadastrar', { set: { name: 'Nome do Usuário', age: 20 } }),
+    // cadastrar:() => window.api.send('cadastrar', { name: 'Nome do Usuário', age: 20 }),
     // buscar:() => window.api.send('buscar', { eventTxt: 'buscarRetorno' }),
-    // editar:() => window.api.send('editar', { get: { age: 20 }, editar: { $set: { age: 21 } }}),
+    // editar:() => window.api.send('editar', { get: { age: 20 }, set: { $set: { age: 21 } }}),
     // remover:() => window.api.send('remover', { get: { _id: "mqplMF2WnAmyOoJu" } }),
     // zerar:() => window.api.send('zerar'),
 
@@ -364,12 +425,8 @@ export default {
     },
     async abrir(item, tipo) {
       this.restaComponetes()
-      this.dialog = false;
-      this.sheet = false;
-      let doc = item[0];
-      let dado = this.dados.filter(v => (v.path == doc.path));
-      this.faturaDados = dado[0];
-      this.fatura = true;
+      this.loading = true;
+      window.api.send('buscarFaturaImportada', { eventTxt: 'exibeFaturaImportada', transportar: item });
     },
   }
 }
