@@ -163,8 +163,8 @@ export default {
       this.mapa = dados;
       this.notificacao('Ataulizado', null, 2000);
     });
-    window.api.on('mapeado', (mapa) => {
-      this.mapa = mapa;
+    window.api.on('mapeado', (dados) => {
+      this.mapa = dados;
       this.sheet = true;
       this.loading = false;
       this.notificacao('Ditrório atualizado', 'success', 2000);
@@ -183,7 +183,7 @@ export default {
     },
     listarArquivos:() => window.api.send('mapear'),
     atualizarBaseDados () {
-      this.loading = true;
+      this.loading = true;;
       window.api.send('addBaseDados', this.selection)
     },
     buscarArquivos:() => window.api.send('buscarArquivos'),
@@ -197,9 +197,17 @@ export default {
       this.multFatura = false;
     },
     async abrir(item, tipo) {
-      // this.restaComponetes()
-      // this.loading = true;
-      // window.api.send('buscarFaturaImportada', { eventTxt: 'exibeFaturaImportada', transportar: item });
+      this.$router.push("/fatura").catch(err => {});
+      this.dialog = false;
+      this.sheet = false;
+      this.restaComponetes()
+      this.loading = true;
+      let id = item[0].id;
+      window.api.send('buscarFaturaImportada', {
+        get: { id: id },
+        eventTxt: 'exibeFaturaImportada',
+        transportar: item[0]
+      });
     },
   }
 }

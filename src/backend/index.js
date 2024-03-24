@@ -23,3 +23,5 @@ ipcMain.on('exportarXlsx', async (event, dados) => {
     event.reply('arquivoSalvo', `Download de ${arquivo} com sucesso!`);
   }
 });
+
+ipcMain.on('drawerOff', (event) => event.reply('drawerOff'));

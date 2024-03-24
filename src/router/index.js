@@ -12,7 +12,7 @@ const routes = [
     component: Inicial
   },
   {
-    path: '/Fatura',
+    path: '/fatura',
     name: 'Fatura',
     component: Fatura
   }

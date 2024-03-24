@@ -133,12 +133,12 @@ export default {
     FaturaAgrupada,
     GraficosFatura,
   },
-  props: {
-    faturaDados: {
-      require: true,
-      type: Object|Array
-    },
-  },
+  // props: {
+  //   faturaDados: {
+  //     require: true,
+  //     type: Object|Array
+  //   },
+  // },
   data() {
     return {
       carregando: false,
@@ -159,46 +159,82 @@ export default {
       ],
       search: null,
       pdfPath: null,
+
+      faturaDados: {
+        vencimento: null,
+        referencia: null,
+        name: null,
+        path: null,
+        total: 0.00,
+        pagamentos: 0.00,
+        estornos: 0.00,
+        entradas: 0.00,
+        saidas: 0.00,
+        transacoes: [],
+      },
     }
   },
   created() {
-    let self = this;
-    console.log(this.faturaDados);
     window.api.on('arquivoSalvo', (arquivo) => {
-      self.notificacao(arquivo, 'success');
+      this.notificacao(arquivo, 'success');
+    });
+
+    window.api.on('exibeFaturaImportada', ({dados, transportar, noLoop=0}) => {
+      if (noLoop == 2) this.notificacao('Erro: requisição em loop', 'error');
+      if (dados.length) {
+        let dado = dados.filter(v => (v.path == transportar.path));
+        this.faturaDados = dado[0];
+        this.loading = false;
+        window.api.send('drawerOff');
+      } else window.api.send('buscarFaturaNaoImportada', transportar, noLoop);
     });
   },
   computed: {
-    vencimento() { return this.faturaDados.vencimento },
-    referencia() { return this.faturaDados.referencia },
-    arquivo() { return this.faturaDados.name },
-    path() { return this.faturaDados.path },
-    total() { return this.faturaDados.total },
-    pagamentos() { return this.faturaDados.pagamentos },
-    estornos() { return this.faturaDados.estornos },
-    entradas() { return this.faturaDados.entradas },
-    saidas() { return this.faturaDados.saidas },
-    transacoes() { return this.faturaDados.transacoes },
-    transAgrup() { return this.agruparTransacoes(this.faturaDados.transacoes, 1) },
-    transAgrupEntradas() { return this.agruparTransacoes(this.faturaDados.transacoes, 0) },
+    vencimento() { return this.faturaDados.vencimento},
+    referencia() { return this.faturaDados.referencia},
+    arquivo() { return this.faturaDados.name},
+    path() { return this.faturaDados.path},
+    total() { return this.faturaDados.total},
+    pagamentos() { return this.faturaDados.pagamentos},
+    estornos() { return this.faturaDados.estornos},
+    entradas() { return this.faturaDados.entradas},
+    saidas() { return this.faturaDados.saidas},
+    transacoes() { return this.faturaDados.transacoes},
+    transAgrup() { return this.agruparTransacoes(this.faturaDados.transacoes, 1)},
+    transAgrupEntradas() { return this.agruparTransacoes(this.faturaDados.transacoes, 0)},
     breadcrumbs() {
-      return [
-        {
-          text: this.faturaDados.referencia,
-          disabled: false,
-          arquivo: 0,
-        },
-        {
-          text: this.faturaDados.name,
-          disabled: true,
-          arquivo: 1,
-        },
-      ]
+      if (this.faturaDados) {
+        return [
+          {
+            text: this.faturaDados.referencia,
+            disabled: false,
+            arquivo: 0,
+          },
+          {
+            text: this.faturaDados.name,
+            disabled: true,
+            arquivo: 1,
+          },
+        ]
+      } else return [];
     },
   },
   methods: {
     dinheiro,
-    fecharFatura() { this.$emit('fecharFatura', false); },
+    fecharFatura() {
+      this.faturaDados = {
+        vencimento: null,
+        referencia: null,
+        name: null,
+        path: null,
+        total: 0.00,
+        pagamentos: 0.00,
+        estornos: 0.00,
+        entradas: 0.00,
+        saidas: 0.00,
+        transacoes: [],
+      }
+    },
     abrirSheet(arquivo) { if (!arquivo) this.$emit('abrirSheet', true); },
     exportJson() { window.api.send('exportarXlsx', this.transacoes) },
     atualizarDados(arquivo, btn=false) {
@@ -218,6 +254,7 @@ export default {
       }
     },
     agruparTransacoes(transacoes, tipo = "1") {
+      if (!this.faturaDados) return [];
       let result = transacoes.reduce((key, obj) => {
         if (obj.tipo == tipo) return key;
         let findObj = key.find(x => x.nome === obj.nome);

@@ -154,12 +154,16 @@ ipcMain.on('certificadoNubankCodigo', (event, codigo) => {
   });
 });
 
-ipcMain.on('fatura', (event, pdfPath) => {
+ipcMain.on('buscarFaturaNaoImportada', (event, pdfPath, noLoop) => {
+  let caminho = pdfPath.path;
+  let nomeArquivo = caminho.split("\\").pop();
+  let referencia = nomeArquivo.split("-")[0];
+
   let exePath;
   if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','FaturaNu.exe');
   else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturaNu.exe');
   
-  const python = spawn(exePath, [pdfPath]);
+  const python = spawn(exePath, [caminho]);
   
   let data = '';
   python.stdout.on('data', (chunk) => { 
@@ -168,8 +172,9 @@ ipcMain.on('fatura', (event, pdfPath) => {
   });
 
   python.on('close', (code) => {
+    let dados = {...JSON.parse(data), ...pdfPath, referencia: referencia};
     if (code !== 0) console.error(`Python script retornou ${code}`);
-    event.reply('pdfJson', data);
+    event.reply('exibeFaturaImportada', {dados: [dados], transportar: pdfPath, noLoop: noLoop++});
   });
 });
 
@@ -224,16 +229,15 @@ ipcMain.on('faturaMult', async (event, pastas) => {
 });
 
 ipcMain.on('addBaseDados', async (event, pastas) => {
-  let faturas = [];
   for (let pasta of pastas) {
     try {
       let fatura = await faturaMultLoop(pasta.path);
       let diretorio = pasta.path.split('\\');
       let dir = diretorio[diretorio.length - 2];
-      let cadastraDb = {...pasta, ...fatura, referencia:dir};
-      let dados = await dbImport.buscar({ path:pasta.path });
+      let cadastraDb = { ...pasta, ...fatura, referencia:dir };
+      let dados = await dbImport.buscar({get: { id:pasta.id }});
       if (!dados.length) dbImport.cadastrar({set: cadastraDb});
-      else dbImport.edicao({get: { path:pasta.path }, set: cadastraDb, multi: true})
+      else dbImport.edicao({get: { id:pasta.id }, set: cadastraDb, multi: true})
     } catch (error) {
       console.error(error);
     }

@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" absolute temporary class="noDrag">
+  <v-navigation-drawer v-model="drawer" absolute temporary class="noDrag" app>
     <v-list-item>
       <v-list-item-content>
         <!-- <v-list-item-title>Projeto</v-list-item-title> -->
@@ -62,6 +62,9 @@ export default {
       dialogCpfSenha: false,
       drawer: false,
     }
+  },
+  created() {
+    window.api.on('drawerOff', () => this.drawer = false);
   },
   computed: {
     iconColor() { return this.$vuetify.theme.dark ? '#FFFFFF' : '#820AD1' },

@@ -1,9 +1,24 @@
 const { ipcMain, dialog } = require('electron');
+const crypto = require('crypto');
 import { listarArquivos } from '@/Utils/Mapear';
 
 const Db = require('@/Utils/db');
 let db = new Db('arquvios');
 let dbDiretorio = new Db('diretorio');
+
+async function mapaId(mapa) {
+  if (mapa) return mapa.map(function(obj) {
+    var mapaObj = {...obj};
+    mapaObj.children = mapaObj.children.map(function(child) {
+      var mapaChild = {...child};
+      var hash = crypto.createHash('sha256');
+      hash.update(mapaChild.path);
+      mapaChild.id = hash.digest('hex');
+      return mapaChild;
+    });
+    return mapaObj;
+  });
+}
 
 ipcMain.on('mapear', async (event) => {
   try {
@@ -21,6 +36,7 @@ ipcMain.on('mapear', async (event) => {
     
     let mapa = listarArquivos(diretorio);
     if (mapa) {
+      mapa = await mapaId(mapa);
       await db.zerar('arquvios');
       db.cadastrar({set: mapa});
     }
@@ -36,6 +52,7 @@ ipcMain.on('atualizarArquivos', async (event, diretorio) => {
   try {
     let mapa = listarArquivos(diretorio);
     if (mapa) {
+      mapa = await mapaId(mapa);
       await db.zerar('arquvios');
       db.cadastrar({set: mapa});
     }

@@ -1,6 +1,14 @@
 html, body {
   background: #333;
 }
+html, body, .v-application, .v-application--wrap {
+  height: 100%;
+  overflow: hidden;
+}
+.v-main {
+  height: 100%;
+  overflow: auto;
+}
 .v-application .transparente {
   height: 40px !important;
 }
