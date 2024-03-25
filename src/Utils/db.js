@@ -81,6 +81,20 @@ class Db {
       });
     });
   }
+  
+  count({get = {}, event = null, eventTxt = null, transportar = null}) {
+    return new Promise((resolve, reject) => {
+      this.db.count(get, function(err, dados) {
+        let msg = (err) ? 'Erro no count' : 'Count com sucesso';
+        let erro = (err) ? 1 : 0;
+        let erroMsg = (err) ? err : '';
+        console.log(msg, erro, erroMsg);
+        if (eventTxt) event.reply(eventTxt, dados, msg, erro, erroMsg, transportar);
+        if (err) reject(err);
+        else resolve(dados);
+      });
+    });
+  }
 }
 
 module.exports = Db;

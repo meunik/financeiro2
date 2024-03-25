@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import FaturaAgrupada from '@/views/FaturaAgrupada.vue'
+import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
 import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
 import { dinheiro } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
@@ -133,12 +133,6 @@ export default {
     FaturaAgrupada,
     GraficosFatura,
   },
-  // props: {
-  //   faturaDados: {
-  //     require: true,
-  //     type: Object|Array
-  //   },
-  // },
   data() {
     return {
       carregando: false,
@@ -235,7 +229,7 @@ export default {
         transacoes: [],
       }
     },
-    abrirSheet(arquivo) { if (!arquivo) this.$emit('abrirSheet', true); },
+    abrirSheet(arquivo) {},
     exportJson() { window.api.send('exportarXlsx', this.transacoes) },
     atualizarDados(arquivo, btn=false) {
       // this.arquivo = arquivo.name;

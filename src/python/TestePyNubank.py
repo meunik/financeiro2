@@ -29,8 +29,8 @@ print('------------------------------------------------------------------')
 
 
 # Lista de dicionários contendo todas as transações de seu cartão de crédito
-card_statements = nu.get_card_statements()
-print(card_statements)
+# card_statements = nu.get_card_statements()
+# print(card_statements)
 
 
 

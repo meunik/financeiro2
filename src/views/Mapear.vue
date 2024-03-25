@@ -318,9 +318,6 @@ export default {
       // if (this.$refs.multFaturaRef) this.$refs.multFaturaRef.atualizarDados(this.selection);
     });
 
-    window.api.on('loadingOn', () => this.loading = true);
-    window.api.on('loadingOff', () => this.loading = false);
-
     window.api.send('buscarArquivosDiretorio');
     window.api.send('buscarArquivos');
   },

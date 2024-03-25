@@ -12,6 +12,11 @@ export let Model = {
       get() { return this.$store.getters.notificacaoId; },
       set(value) { this.$store.commit('notificacaoId', value); }
     },
+
+    gastosCartao: { get() { return this.$store.getters.gastosCartao; } },
+    faturasCartao: { get() { return this.$store.getters.faturasCartao; } },
+    faturasCompletas: { get() { return this.$store.getters.faturasCompletas; } },
+
     mapa: {
       get() { return this.$store.getters.mapa; },
       set(value) { this.$store.commit('mapa', value); }

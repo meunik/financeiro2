@@ -9,7 +9,7 @@
       <v-icon small class="mx-0 iconBarr" :color="iconColor">mdi-menu</v-icon>
     </v-btn>
     
-    <router-link to="/" class="noDrag">
+    <router-link to="/" class="noDrag d-flex align-content-center">
       <img src="logo.png" height="25" class="mr-3" alt="logo" @click.stop="home()">
     </router-link>
     
@@ -17,9 +17,11 @@
     <v-icon v-if="$vuetify.theme.dark">mdi-weather-night</v-icon>
     <v-icon v-else>mdi-white-balance-sunny</v-icon>
     
-    <v-btn class="noDrag ml-3 px-0" icon small @click="atualizarPagina"><v-icon>mdi-refresh</v-icon></v-btn>
+    <v-btn class="noDrag ml-3 px-0" icon x-small @click="voltar"><v-icon small>mdi-chevron-left</v-icon></v-btn>
+    <v-btn class="noDrag px-0" icon x-small @click="avancar"><v-icon small>mdi-chevron-right</v-icon></v-btn>
+    <v-btn class="noDrag px-0" icon small @click="atualizarPagina"><v-icon>mdi-refresh</v-icon></v-btn>
 
-    <div class="ml-3">
+    <div class="ml-2">
       <router-link to="/" class="noDrag text-decoration-none blue-grey--text">
         <span>Financeiro</span>
       </router-link>
@@ -49,7 +51,6 @@ export default {
   mixins: [Model],
   created() {
     window.api.on('attPagina', () => this.atualizarPagina());
-    window.api.on('notificacao', (msg, cor, tempo) => this.notificacao(msg, cor, tempo));
   },
   computed: {
     systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' },
@@ -57,6 +58,8 @@ export default {
     currentUrl() { return this.$route.path; }
   },
   methods: {
+    voltar() { this.$router.go(-1) },
+    avancar() { this.$router.go(1) },
     minimizar:() => window.api.send('minimizar'),
     fechar:() => window.api.send('fechar'),
     maximizar:() => window.api.send('maximizar'),
