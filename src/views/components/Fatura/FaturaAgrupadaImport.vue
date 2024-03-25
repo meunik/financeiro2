@@ -67,7 +67,7 @@
                   Total:
                 </v-list-item-content>
                 <v-list-item-content class="red--text">
-                  {{ modeda(item.total) }}
+                  {{ dinheiro(item.total) }}
                 </v-list-item-content>
               </v-list-item>
 
@@ -76,10 +76,10 @@
               <v-list dense>
                 <v-list-item v-for="(index, key) in item.datas" :key="key">
                   <v-list-item-content :class="{ 'blue--text': sortBy === index.data }">
-                    {{ data(index.data) }}:
+                    {{ index.data }}:
                   </v-list-item-content>
                   <v-list-item-content class="align-end" :class="{ 'blue--text': sortBy === index.data }">
-                    {{ modeda(index.valor) }}
+                    {{ dinheiro(index.valor) }}
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -93,8 +93,7 @@
 </template>
 
 <script>
-import { dinheiro, modeda } from '@/Utils/Converter'
-import moment from 'moment'
+import { dinheiro } from '@/Utils/Converter'
 
 export default {
   props: {
@@ -131,8 +130,6 @@ export default {
   },
   methods: {
     dinheiro,
-    modeda,
-    data(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
     nextPage () {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
     },

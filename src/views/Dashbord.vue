@@ -1,14 +1,15 @@
 <template>
   <div>
     <template>
-      <v-row justify="center">
+      <v-row class="mt-10">
+        <v-col cols="12">
         <v-expansion-panels popout>
 
           <v-expansion-panel :class="systemBgClass">
             <v-expansion-panel-header>
               <span class="d-flex align-items-center gap-15"><Icone icone="nubank"/>Nubank</span>
             </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content :class="systemBgClass">
               <template>
                 <v-card>
                   <v-tabs dark background-color="purple darken-3" show-arrows v-model="tab">
@@ -18,30 +19,29 @@
                     </v-tab>
 
                     <v-tabs-items v-model="tab">
-                      <v-tab-item v-for="(item, key) in faturasCompletas" :key="key" :value="`tab-${key}`">
-                        <v-card flat>
-                          <Fatura :fatura-dados="item"/>
-                          <!-- <v-card-text>{{ item.bill.line_items }}</v-card-text> -->
-                        </v-card>
+                      <v-tab-item v-for="(item, key) in faturasCompletas" :key="key" :value="`tab-${key}`" class="px-5">
+                        <Fatura :fatura-dados="item"/>
                       </v-tab-item>
                     </v-tabs-items>
 
                   </v-tabs>
                 </v-card>
               </template>
+                <Footer />
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel>
+          <v-expansion-panel :class="systemBgClass" active-class="mt-0">
             <v-expansion-panel-header>
               <span class="d-flex align-items-center gap-15"><Icone icone="santander"/>Santander</span>
             </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content :class="systemBgClass">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
             </v-expansion-panel-content>
           </v-expansion-panel>
 
         </v-expansion-panels>
+        </v-col>
       </v-row>
     </template>
   </div>
@@ -51,6 +51,7 @@
 import { Model } from "@/store/Model";
 import Icone from '@/assets/icones/Icone.vue';
 import Fatura from '@/views/components/Fatura/Fatura.vue';
+import Footer from "@/views/components/layout/Footer.vue"
 import moment from 'moment';
 
 export default {
@@ -58,6 +59,7 @@ export default {
   components: {
     Icone,
     Fatura,
+    Footer,
   },
   data() {
     return {

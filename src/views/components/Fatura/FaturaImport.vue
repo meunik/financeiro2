@@ -116,13 +116,13 @@
 
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
-    <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
+    <FaturaAgrupadaImport v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
     <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" />
   </div>
 </template>
 
 <script>
-import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
+import FaturaAgrupadaImport from '@/views/components/Fatura/FaturaAgrupadaImport.vue'
 import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
 import { dinheiro } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
@@ -130,7 +130,7 @@ import { Model } from "@/store/Model"
 export default {
   mixins: [Model],
   components: {
-    FaturaAgrupada,
+    FaturaAgrupadaImport,
     GraficosFatura,
   },
   data() {

@@ -6,10 +6,7 @@
       <v-container>
         <router-view/>
       </v-container>
-      <v-footer padless :color="systemBg">
-        <v-col class="text-center" cols="12" style="height: 100px;">
-        </v-col>
-      </v-footer>
+      <Footer />
     </v-main>
 
     <Navegacao ref="navegacao"/>
@@ -38,12 +35,14 @@
 import { Model } from "@/store/Model"
 import Navegacao from "@/views/components/layout/Navegacao.vue"
 import TitleBar from "@/views/components/layout/TitleBar.vue"
+import Footer from "@/views/components/layout/Footer.vue"
 
 export default {
   mixins: [Model],
   components: {
     Navegacao,
     TitleBar,
+    Footer,
   },
   created() {
     window.api.on('loadingOn', () => this.loading = true);

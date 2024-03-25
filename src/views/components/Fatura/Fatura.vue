@@ -1,132 +1,225 @@
 <template>
-    <div>  
-      <h1 class="mt-2">Fatura</h1>
-      <!-- <div v-if="arquivo">
-        <v-icon class="mb-3" left>mdi-arrow-right-bottom</v-icon>
-        <v-breadcrumbs class="d-contents" :items="breadcrumbs">
-          <template v-slot:item="{ item }">
-            <v-breadcrumbs-item href="#" :disabled="item.disabled" @click="abrirSheet(item.arquivo)">
-              {{ item.text }}
-            </v-breadcrumbs-item>
+  <div>  
+    <h1 class="mt-2">Fatura</h1>
+    <!-- <div v-if="arquivo">
+      <v-icon class="mb-3" left>mdi-arrow-right-bottom</v-icon>
+      <v-breadcrumbs class="d-contents" :items="breadcrumbs">
+        <template v-slot:item="{ item }">
+          <v-breadcrumbs-item href="#" :disabled="item.disabled" @click="abrirSheet(item.arquivo)">
+            {{ item.text }}
+          </v-breadcrumbs-item>
+        </template>
+      </v-breadcrumbs>
+      <v-btn icon plain color="red" class="mb-1" @click="fecharFatura">
+        <v-icon class="mx-0 red--text">mdi-file-remove</v-icon>
+      </v-btn>
+    </div> -->
+
+    <!-- <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()" :loading="loading">
+      <v-icon left>mdi-table-arrow-right</v-icon>
+      Exportar
+    </v-btn> -->
+
+    <v-row class="my-5">
+      <v-col cols="12" sm="4">
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+          Valor Fatura: 
+          <span class="blue--text">{{ modeda(total) }}</span>
+        </v-banner>
+      </v-col>
+      <v-col cols="12" sm="4">
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+          Estornos: 
+          <span class="green--text">{{ modeda(positivo(estornos)) }}</span>
+        </v-banner>
+      </v-col>
+      <v-col cols="12" sm="4">
+        <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
+        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+          Saidas: 
+          <span class="red--text">{{ modeda(saidas) }}</span>
+        </v-banner>
+      </v-col>
+    </v-row>
+
+    <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
+
+    <v-skeleton-loader v-if="loading" type="table-heading"></v-skeleton-loader>
+    <v-skeleton-loader v-if="loading" type="table-thead"></v-skeleton-loader>
+    <v-skeleton-loader v-if="loading" class="mb-5" type="table-tbody"></v-skeleton-loader>
+
+    <div v-else class="my-5">
+      <v-card>
+        <v-card-title>
+            <v-checkbox
+              v-model="checkboxGroupBy"
+              label="Agrupar"
+            ></v-checkbox>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Buscar"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-card-title>
+        <v-data-table
+          dense
+          :headers="headers"
+          :items="transacoes"
+          :search="search"
+          :items-per-page="15"
+          :group-by="checkboxGroupBy?'category':null"
+          :loading="loading"
+          loading-text="Carregando... Por favor, aguarde"
+          class="elevation-1"
+        >
+          <template v-slot:item.title="{ item }">
+            <span :class="cor(item.amount)">
+              {{ item.title }}
+            </span>
           </template>
-        </v-breadcrumbs>
-        <v-btn icon plain color="red" class="mb-1" @click="fecharFatura">
-          <v-icon class="mx-0 red--text">mdi-file-remove</v-icon>
-        </v-btn>
-      </div> -->
-  
-      <!-- <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()" :loading="loading">
-        <v-icon left>mdi-table-arrow-right</v-icon>
-        Exportar
-      </v-btn> -->
-  
-      <v-row class="my-5">
-        <v-col>
-          <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-          <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
-            Valor Fatura: 
-            <span class="blue--text">{{ dinheiro(total) }}</span>
-          </v-banner>
-        </v-col>
-        <v-col>
-          <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-          <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
-            Estornos: 
-            <span class="green--text">{{ dinheiro(estornos) }}</span>
-          </v-banner>
-        </v-col>
-        <v-col>
-          <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-          <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
-            Saidas: 
-            <span class="red--text">{{ dinheiro(saidas) }}</span>
-          </v-banner>
-        </v-col>
-      </v-row>
+          <template v-slot:item.amount="{ item }">
+            <span :class="cor(item.amount)">
+              {{ modeda(positivo(item.amount)) }}
+            </span>
+          </template>
+          <template v-slot:item.post_date="{ item }">
+            <span :class="cor(item.amount)">
+              {{ data(item.post_date) }}
+            </span>
+          </template>
+          <template v-slot:item.category="{ item }">
+            <span :class="cor(item.amount)">
+              {{ (!item.category && (item.amount < 0)) ? 'Estorno' : item.category}}
+            </span>
+          </template>
+        </v-data-table>
+      </v-card>
     </div>
-  </template>
-  
-  <script>
-  import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
-  import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
-  import { dinheiro } from '@/Utils/Converter'
-  import { Model } from "@/store/Model"
-  
-  export default {
-    mixins: [Model],
-    components: {
-      FaturaAgrupada,
-      GraficosFatura,
+
+    <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
+    <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
+    <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
+    <!-- <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" /> -->
+
+
+  </div>
+</template>
+
+<script>
+import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
+import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
+import { modeda } from '@/Utils/Converter'
+import { Model } from "@/store/Model"
+import moment from 'moment'
+
+export default {
+  mixins: [Model],
+  components: {
+    FaturaAgrupada,
+    GraficosFatura,
+  },
+  props: {
+    faturaDados: {
+      type: Array|Object,
+      default: ''
     },
-    props: {
-      faturaDados: {
-        type: Array|Object,
-        default: ''
-      },
-    },
-    data() {
-      return {
-        carregando: false,
-        btnConverter: false,
-        checkboxGroupBy: false,
-        groupBy: null,
-        diasAgrupadas: [],
-        headers: [
-          {
-            text: 'Nome',
-            align: 'start',
-            sortable: false,
-            value: 'title',
-          },
-          { text: 'Valor', value: 'amount' },
-          { text: 'Data', value: 'post_date' },
-          { text: 'Tipo', value: 'type' },
-        ],
-        search: null,
-        pdfPath: null,
-      }
-    },
-    created() {
-      console.log(this.faturaDados);
-    },
-    computed: {
-      fatura() { return this.faturaDados.bill},
-      vencimento() { return this.fatura.summary.due_date},
-      referencia() { return this.fatura.state},
-      arquivo() { return this.fatura.summary.due_date},
-      // path() { return this.fatura.path},
-      total() { return this.fatura.summary.total_balance},
-      pagamentos() { return this.fatura.summary.total_balance},
-      estornos() { return this.fatura.summary.past_balance},
-      entradas() { return this.fatura.summary.minimum_payment},
-      saidas() { return this.fatura.summary.total_cumulative},
-      transacoes() { return this.fatura.line_items},
-      // transAgrup() { return this.agruparTransacoes(this.fatura.transacoes, 1)},
-      // transAgrupEntradas() { return this.agruparTransacoes(this.fatura.transacoes, 0)},
-      // breadcrumbs() {
-      //   if (this.fatura) {
-      //     return [
-      //       {
-      //         text: this.fatura.referencia,
-      //         disabled: false,
-      //         arquivo: 0,
-      //       },
-      //       {
-      //         text: this.fatura.name,
-      //         disabled: true,
-      //         arquivo: 1,
-      //       },
-      //     ]
-      //   } else return [];
-      // },
-    },
-    methods: {
-      dinheiro,
-      fecharFatura() {
-      },
-      abrirSheet(arquivo) {},
-      exportJson() { window.api.send('exportarXlsx', this.transacoes) },
+  },
+  data() {
+    return {
+      carregando: false,
+      btnConverter: false,
+      checkboxGroupBy: false,
+      groupBy: null,
+      diasAgrupadas: [],
+      headers: [
+        {
+          text: 'Nome',
+          align: 'start',
+          sortable: false,
+          value: 'title',
+        },
+        {
+          text: 'Valor',
+          value: 'amount'
+        },
+        { text: 'Data', value: 'post_date' },
+        { text: 'Categoria', value: 'category' },
+      ],
+      search: null,
+      pdfPath: null,
     }
+  },
+  computed: {
+    fatura() { return this.faturaDados.bill},
+    vencimento() { return this.fatura.summary.due_date},
+    referencia() { return this.fatura.state},
+    arquivo() { return this.fatura.summary.due_date},
+    // path() { return this.fatura.path},
+    total() { return this.fatura.summary.total_balance},
+    pagamentos() { return this.fatura.summary.total_balance},
+    estornos() { return this.fatura.summary.past_balance},
+    entradas() { return this.fatura.summary.minimum_payment},
+    saidas() { return this.fatura.summary.total_cumulative},
+    transacoes() { return this.fatura.line_items},
+    transAgrup() { return this.agruparTransacoes(this.fatura.line_items, 1)},
+    transAgrupEntradas() { return this.agruparTransacoes(this.fatura.line_items, 0)},
+    // breadcrumbs() {
+    //   if (this.fatura) {
+    //     return [
+    //       {
+    //         text: this.fatura.referencia,
+    //         disabled: false,
+    //         arquivo: 0,
+    //       },
+    //       {
+    //         text: this.fatura.name,
+    //         disabled: true,
+    //         arquivo: 1,
+    //       },
+    //     ]
+    //   } else return [];
+    // },
+  },
+  methods: {
+    modeda,
+    fecharFatura() {
+    },
+    abrirSheet(arquivo) {},
+    exportJson() { window.api.send('exportarXlsx', this.transacoes) },
+    cor(valor) { if (valor < 0) return 'green--text' },
+    positivo(valor) { return Math.abs(valor) },
+    data(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
+    agruparTransacoes(transacoes, tipo = 1) {
+      if (!this.faturaDados) return [];
+      let result = transacoes.reduce((key, obj) => {
+        if ((tipo == 1)&&(obj.amount < 0)) return key;
+        if ((tipo == 0)&&(obj.amount >= 0)) return key;
+
+        let findObj = key.find(x => x.nome === obj.title);
+        if (findObj) {
+            findObj.datas.push({ valor: obj.amount, data: obj.post_date });
+            findObj.total += obj.amount;
+        } else key.push({ nome: obj.title, total: obj.amount, datas: [{ valor: obj.amount, data: obj.post_date }] });
+        return key;
+      }, []);
+
+      if (tipo == 1) {
+        let agrupadas = [...new Set(result)];
+        let datas = transacoes.map(obj => obj.post_date);
+        let datasUnicas = [...new Set(datas)];
+        this.diasAgrupadas = datasUnicas
+        return agrupadas
+      } else {
+        let agrupadas = [...new Set(result)];
+        return agrupadas
+      }
+
+    },
   }
-  </script>
-  
+}
+</script>
