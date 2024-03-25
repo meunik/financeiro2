@@ -190,7 +190,7 @@
       </v-card>
     </v-dialog>
 
-    <Fatura
+    <FaturaImport
       v-if="fatura"
       :faturaDados="faturaDados"
       ref="faturaRef"
@@ -201,7 +201,7 @@
 </template>
 
 <script>
-import Fatura from '@/views/Fatura.vue'
+import FaturaImport from '@/views/components/Fatura/FaturaImport.vue'
 import Icone from '@/assets/icones/Icone.vue'
 import { Model } from "@/store/Model"
 import gastosCartao from '@raiz/database/json/nubank/GastosCartao.json'
@@ -210,7 +210,7 @@ import faturasCartao from '@raiz/database/json/nubank/FaturasCartao.json'
 export default {
   mixins: [Model],
   components: {
-    Fatura,
+    FaturaImport,
     Icone,
   },
   data() {

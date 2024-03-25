@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Fatura from '@/views/Fatura.vue'
+import FaturaImport from '@/views/components/Fatura/FaturaImport.vue'
 import Inicial from '@/views/Inicial.vue'
 import ConfigNubank from '@/views/components/Configuracos/ConfigNubank.vue'
 
@@ -13,9 +13,9 @@ const routes = [
     component: Inicial
   },
   {
-    path: '/fatura',
-    name: 'Fatura',
-    component: Fatura
+    path: '/faturaImport',
+    name: 'FaturaImport',
+    component: FaturaImport
   },
   {
     path: '/configNubank',

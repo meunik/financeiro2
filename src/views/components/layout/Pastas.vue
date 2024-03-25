@@ -101,14 +101,14 @@
 </template>
 
 <script>
-import Fatura from '@/views/Fatura.vue'
+import FaturaImport from '@/views/components/Fatura/FaturaImport.vue'
 import Icone from '@/assets/icones/Icone.vue'
 import { Model } from "@/store/Model"
  
 export default {
   mixins: [Model],
   components: {
-    Fatura,
+    FaturaImport,
     Icone,
   },
   data() {
@@ -197,7 +197,7 @@ export default {
       this.multFatura = false;
     },
     async abrir(item, tipo) {
-      this.$router.push("/fatura").catch(err => {});
+      this.$router.push("/faturaImport").catch(err => {});
       this.dialog = false;
       this.sheet = false;
       this.restaComponetes()

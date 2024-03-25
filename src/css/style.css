@@ -51,6 +51,46 @@ html, body, .v-application, .v-application--wrap {
   box-shadow: 0px 3px 16px 2px rgb(0 0 0 / 20%), 0px 10px 12px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
 }
 
+
+.v-expansion-panel {
+  flex: 1 0 100%;
+  max-width: 100%;
+  position: relative;
+  transition: 0.9s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
+}
+.v-expansion-panel--active:not(:first-child), .v-expansion-panel--active + .v-expansion-panel {
+  margin-top: 0px !important;
+}
+.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile) > .v-expansion-panel--active {
+  border-radius: 0px !important;
+}
+.v-expansion-panels--popout > .v-expansion-panel--active {
+  position: absolute;
+  width: 100% !important;
+  min-height: calc(100vh - 40px)  !important;
+  z-index: 1000;
+}
+.v-expansion-panels--popout > .v-expansion-panel--active.dark {
+  background: #121212 !important;
+}
+.v-expansion-panels--popout > .v-expansion-panel--active.light {
+  background: #ffffff !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
