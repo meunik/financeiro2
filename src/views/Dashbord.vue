@@ -5,11 +5,11 @@
         <v-col cols="6">
         <v-expansion-panels popout>
 
-          <v-expansion-panel :class="systemBgClass">
+          <v-expansion-panel :class="systemBgClass" class="faturas">
             <v-expansion-panel-header>
               <span class="d-flex align-items-center gap-15"><Icone icone="nubank"/>Nubank</span>
             </v-expansion-panel-header>
-            <v-expansion-panel-content :class="systemBgClass">
+            <v-expansion-panel-content :class="systemBgClass" class="faturas">
               <template>
                 <v-container>
                   <v-tabs dark background-color="#420567" show-arrows v-model="tab">
@@ -27,7 +27,7 @@
                   </v-tabs>
                 </v-container>
               </template>
-                <Footer />
+              <Footer />
             </v-expansion-panel-content>
           </v-expansion-panel>
 

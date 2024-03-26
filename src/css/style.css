@@ -52,6 +52,8 @@ html, body, .v-application, .v-application--wrap {
 }
 
 
+
+
 .v-expansion-panels {
   margin-top: 20px;
 }
@@ -61,10 +63,10 @@ html, body, .v-application, .v-application--wrap {
   position: relative;
   transition: 0.9s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
 }
-.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile) > .v-expansion-panel--active {
+.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile) > .v-expansion-panel--active.faturas {
   border-radius: 0px !important;
 }
-.v-expansion-panels--popout > .v-expansion-panel--active {
+.v-expansion-panels--popout > .v-expansion-panel--active.faturas {
   margin-top: -73px;
   padding-top: 40px;
   position: fixed;
@@ -76,20 +78,24 @@ html, body, .v-application, .v-application--wrap {
   right: 0;
 }
 
-.v-expansion-panels--popout > .v-expansion-panel--active.dark {
+.v-expansion-panels--popout > .v-expansion-panel--active.faturas.dark {
   background: #121212 !important;
 }
-.v-expansion-panels--popout > .v-expansion-panel--active.light {
+.v-expansion-panels--popout > .v-expansion-panel--active.faturas.light {
   background: #f3f0ec !important;
 }
-.v-expansion-panel-content.dark {
+.v-expansion-panel-content.faturas.dark {
   display: flex;
   background: #121212 !important;
 }
-.v-expansion-panel-content.light {
+.v-expansion-panel-content.faturas.light {
   display: flex;
   background: #f3f0ec !important;
 }
+
+
+
+
 
 .v-item-group.v-slide-group.v-slide-group--has-affixes.v-slide-group--is-overflowing.v-tabs-bar--show-arrows {
   border-radius: 5px;

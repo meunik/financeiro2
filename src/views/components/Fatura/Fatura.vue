@@ -100,9 +100,11 @@
 
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
-    <FaturaCategorias v-if="agrupCategoria.length && !loading" :items="agrupCategoria"/>
+    <FaturaCategorias v-if="agrupCategoria.length && !loading" :categorias="agrupCategoria"/>
     <!-- <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
-    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" /> -->
+    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" tipo="bar" /> -->
+
+
 
 
   </div>
@@ -187,7 +189,8 @@ export default {
     },
     agrupCategoria() {
       let categorias = [];
-      let items = this.transacoes.reduce((result, item) => {
+      let transacoes = this.transacoes.filter((item) => item.category != 'Pagamento')
+      let items = transacoes.reduce((result, item) => {
         if (!result[item.category]) {
           result[item.category] = {
             transacoes: [],
@@ -205,10 +208,10 @@ export default {
     },
   },
   mounted() {
-    console.log('-------------------------------');
-    console.log(this.agrupCategoria.length);
-    // console.log(JSON.parse(JSON.stringify(this.transacoes)));
+    // console.log('-------------------------------');
+    // console.log(this.agrupCategoria.length);
     console.log(JSON.parse(JSON.stringify(this.agrupCategoria)));
+    console.log(JSON.parse(JSON.stringify(this.transAgrup)));
   },
   methods: {
     modeda,

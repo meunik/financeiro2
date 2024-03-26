@@ -137,7 +137,7 @@ export default {
       let totais = this.items.map(obj => obj.total);
 
       this.chart = new Chart(ctx, {
-        type: 'bar',
+        type: this.tipo,
         data: {
           labels: nomes,
           datasets: [{
