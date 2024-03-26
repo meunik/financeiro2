@@ -5,7 +5,15 @@
     "output": "dist"
   },
   "asar": true,
-  "asarUnpack": "FaturaNu.exe",
+  "asarUnpack": [
+    "scripts/cert.p12",
+    "scripts/cli.exe",
+    "scripts/FaturaNu.exe",
+    "scripts/FaturasCartao.exe",
+    "scripts/FaturasCompletas.exe",
+    "scripts/GastosCartao.exe",
+    "scripts/TransacoesPaginadas.exe"
+  ],
   "files": [
     "dist/electron/**/*"
   ],

@@ -30,6 +30,7 @@ FaturaNu.exe
 /app.asar
 app.asar
 /scripts/*
+public/scripts/*
 
 # db
 /database

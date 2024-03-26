@@ -1,19 +1,16 @@
 <template>
   <div>  
     <h1 class="mt-2">Fatura</h1>
-    <!-- <div v-if="arquivo">
+    <div v-if="arquivo">
       <v-icon class="mb-3" left>mdi-arrow-right-bottom</v-icon>
       <v-breadcrumbs class="d-contents" :items="breadcrumbs">
         <template v-slot:item="{ item }">
-          <v-breadcrumbs-item href="#" :disabled="item.disabled" @click="abrirSheet(item.arquivo)">
+          <v-breadcrumbs-item class="grey--text" :disabled="item.disabled" @click="abrirSheet(item.arquivo)">
             {{ item.text }}
           </v-breadcrumbs-item>
         </template>
       </v-breadcrumbs>
-      <v-btn icon plain color="red" class="mb-1" @click="fecharFatura">
-        <v-icon class="mx-0 red--text">mdi-file-remove</v-icon>
-      </v-btn>
-    </div> -->
+    </div>
 
     <!-- <v-btn v-if="transacoes.length > 0" class="mt-5" color="green" @click="exportJson()" :loading="loading">
       <v-icon left>mdi-table-arrow-right</v-icon>
@@ -23,21 +20,21 @@
     <v-row class="my-5">
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+        <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
           Valor Fatura: 
           <span class="blue--text">{{ modeda(total) }}</span>
         </v-banner>
       </v-col>
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+        <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
           Estornos: 
           <span class="green--text">{{ modeda(positivo(estornos)) }}</span>
         </v-banner>
       </v-col>
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
-        <v-banner v-else color="secondary" elevation="5" outlined rounded shaped>
+        <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
           Saidas: 
           <span class="red--text">{{ modeda(saidas) }}</span>
         </v-banner>
@@ -89,7 +86,7 @@
           </template>
           <template v-slot:item.post_date="{ item }">
             <span :class="cor(item.amount)">
-              {{ data(item.post_date) }}
+              {{ dataFormat(item.post_date) }}
             </span>
           </template>
           <template v-slot:item.category="{ item }">
@@ -103,8 +100,9 @@
 
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
-    <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
-    <!-- <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" /> -->
+    <FaturaCategorias v-if="agrupCategoria.length && !loading" :items="agrupCategoria"/>
+    <!-- <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
+    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" /> -->
 
 
   </div>
@@ -112,6 +110,7 @@
 
 <script>
 import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
+import FaturaCategorias from '@/views/components/Fatura/FaturaCategorias.vue'
 import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
 import { modeda } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
@@ -121,6 +120,7 @@ export default {
   mixins: [Model],
   components: {
     FaturaAgrupada,
+    FaturaCategorias,
     GraficosFatura,
   },
   props: {
@@ -155,6 +155,7 @@ export default {
     }
   },
   computed: {
+    summary() { return this.faturaDados.bill.summary},
     fatura() { return this.faturaDados.bill},
     vencimento() { return this.fatura.summary.due_date},
     referencia() { return this.fatura.state},
@@ -168,22 +169,46 @@ export default {
     transacoes() { return this.fatura.line_items},
     transAgrup() { return this.agruparTransacoes(this.fatura.line_items, 1)},
     transAgrupEntradas() { return this.agruparTransacoes(this.fatura.line_items, 0)},
-    // breadcrumbs() {
-    //   if (this.fatura) {
-    //     return [
-    //       {
-    //         text: this.fatura.referencia,
-    //         disabled: false,
-    //         arquivo: 0,
-    //       },
-    //       {
-    //         text: this.fatura.name,
-    //         disabled: true,
-    //         arquivo: 1,
-    //       },
-    //     ]
-    //   } else return [];
-    // },
+    breadcrumbs() {
+      if (this.faturaDados) {
+        return [
+          {
+            text: this.ano(this.summary.due_date),
+            disabled: false,
+            arquivo: 0,
+          },
+          {
+            text: this.mes(this.summary.due_date),
+            disabled: true,
+            arquivo: 1,
+          },
+        ]
+      } else return [];
+    },
+    agrupCategoria() {
+      let categorias = [];
+      let items = this.transacoes.reduce((result, item) => {
+        if (!result[item.category]) {
+          result[item.category] = {
+            transacoes: [],
+            total: 0,
+            nome: ''
+          };
+        }
+        result[item.category].transacoes.push(item);
+        result[item.category].total += item.amount;
+        result[item.category].nome = item.category;
+        return result;
+      }, {});
+      Object.keys(items).map(key => categorias.push(items[key]));
+      return categorias;
+    },
+  },
+  mounted() {
+    console.log('-------------------------------');
+    console.log(this.agrupCategoria.length);
+    // console.log(JSON.parse(JSON.stringify(this.transacoes)));
+    console.log(JSON.parse(JSON.stringify(this.agrupCategoria)));
   },
   methods: {
     modeda,
@@ -193,7 +218,9 @@ export default {
     exportJson() { window.api.send('exportarXlsx', this.transacoes) },
     cor(valor) { if (valor < 0) return 'green--text' },
     positivo(valor) { return Math.abs(valor) },
-    data(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
+    dataFormat(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
+    ano(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('YYYY'); },
+    mes(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('MMMM'); },
     agruparTransacoes(transacoes, tipo = 1) {
       if (!this.faturaDados) return [];
       let result = transacoes.reduce((key, obj) => {

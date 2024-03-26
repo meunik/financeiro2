@@ -116,14 +116,21 @@ export default {
   },
   watch: {
     items() {
-      if (this.chart) this.chart.destroy();
-      this.createChart();
+      this.atualizar();
     }
   },
   mounted() {
+    window.addEventListener('resize', this.atualizar);
     this.createChart();
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.atualizar);
+  },
   methods: {
+    atualizar() {
+      if (this.chart) this.chart.destroy();
+      this.createChart();
+    },
     createChart() {
       const ctx = this.$refs.canvas.getContext('2d');
       let nomes = this.items.map(obj => obj.nome);

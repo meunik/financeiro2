@@ -19,14 +19,14 @@ ipcMain.on('salvarFaturasCompletas', async (event) => {
     let cpf = auth[0].cpf;
     let senha = auth[0].senha;
     let caminho = 'database/json/nubank/FaturasCompletas';
-    let cert = (process.env.NODE_ENV !== 'production')?'./public/cert.p12':'./resources/app.asar.unpacked/cert.p12';
+    let cert = (process.env.NODE_ENV !== 'production')?'./public/scripts/cert.p12':'./resources/app.asar.unpacked/cert.p12';
 
     // let py = 'H:/Projetos/Electron/financeiro2/src/python/FaturasCompletas.py';
     // python = spawn('python', [py, cert, cpf, senha, caminho]);
 
     let exePath;
-    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','FaturasCompletas.exe');
-    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturasCompletas.exe');
+    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','FaturasCompletas.exe');
+    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'FaturasCompletas.exe');
     python = spawn(exePath, [cert, cpf, senha, caminho]);
 
     python.stdout.on('data', (data) => console.log(data.toString()));
@@ -42,21 +42,17 @@ ipcMain.on('salvarFaturasCompletas', async (event) => {
   }
 });
 
-// AJUSTAR PARA DEPLOY
 ipcMain.on('salvarFaturasCartao', async (event) => {
   try {
     const auth = await dbAuth.buscar({get: { tipo: 'nubank' }});
     let cpf = auth[0].cpf;
     let senha = auth[0].senha;
     let caminho = 'database/json/nubank/FaturasCartao';
-    let cert = (process.env.NODE_ENV !== 'production')?'./public/cert.p12':'./resources/app.asar.unpacked/cert.p12';
-
-    // let py = 'H:/Projetos/Electron/financeiro2/src/python/FaturasCartao.py';
-    // python = spawn('python', [py, cert, cpf, senha, caminho]);
+    let cert = (process.env.NODE_ENV !== 'production')?'./public/scripts/cert.p12':'./resources/app.asar.unpacked/cert.p12';
 
     let exePath;
-    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','FaturasCartao.exe');
-    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturasCartao.exe');
+    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','FaturasCartao.exe');
+    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'FaturasCartao.exe');
     python = spawn(exePath, [cert, cpf, senha, caminho]);
 
     python.stdout.on('data', (data) => console.log(data.toString()));
@@ -78,14 +74,14 @@ ipcMain.on('salvarTransacoes', async (event) => {
     let cpf = auth[0].cpf;
     let senha = auth[0].senha;
     let caminho = 'database/json/nubank/Transacao';
-    let cert = (process.env.NODE_ENV !== 'production')?'./public/cert.p12':'./resources/app.asar.unpacked/cert.p12';
+    let cert = (process.env.NODE_ENV !== 'production')?'./public/scripts/cert.p12':'./resources/app.asar.unpacked/cert.p12';
 
     let py = 'H:/Projetos/Electron/financeiro2/src/python/TransacoesPaginadas.py';
     python = spawn('python', [py, cert, cpf, senha, caminho]);
 
     // let exePath;
-    // if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static, '..', 'scripts', 'TransacoesPaginadas.exe');
-    // else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'TransacoesPaginadas.exe');
+    // if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','TransacoesPaginadas.exe');
+    // else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'TransacoesPaginadas.exe');
     // python = spawn(exePath, [cert, cpf, senha, caminho]);
 
     python.stdout.on('data', (data) => {
@@ -112,11 +108,11 @@ ipcMain.on('salvarGastosCartao', async (event) => {
     let cpf = auth[0].cpf;
     let senha = auth[0].senha;
     let caminho = 'database/json/nubank/GastosCartao.json';
-    let cert = (process.env.NODE_ENV !== 'production')?'./public/cert.p12':'./resources/app.asar.unpacked/cert.p12';
+    let cert = (process.env.NODE_ENV !== 'production')?'./public/scripts/cert.p12':'./resources/app.asar.unpacked/cert.p12';
   
     let exePath;
-    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','GastosCartao.exe');
-    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'GastosCartao.exe');
+    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','GastosCartao.exe');
+    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'GastosCartao.exe');
     params = [cert, cpf, senha, caminho];
     python = spawn(exePath, params);
     
@@ -136,8 +132,8 @@ ipcMain.on('certificadoNubank', (event, {cpf, senha}) => {
   let caminho = (process.env.NODE_ENV !== 'production') ? './public/' : 'resources/app.asar.unpacked/';
 
   let exePath;
-  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','cli.exe');
-  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'cli.exe');
+  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','cli.exe');
+  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'cli.exe');
   python = spawn(exePath, [cpf, senha, caminho]);
 
   let abredialogCodigo = true;
@@ -169,8 +165,8 @@ ipcMain.on('certificadoNubankCodigo', (event, codigo) => {
 });
 ipcMain.on('varificarCertificadoExiste', (event, codigo) => {
   let exePath;
-  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','cert.p12');
-  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'cert.p12');
+  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','cert.p12');
+  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'cert.p12');
 
   fs.access(exePath, fs.constants.F_OK, (err) => {
     if (err) event.reply('exibeCertificadoExiste', false);
@@ -184,8 +180,8 @@ ipcMain.on('buscarFaturaNaoImportada', (event, pdfPath, noLoop) => {
   let referencia = nomeArquivo.split("-")[0];
 
   let exePath;
-  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','FaturaNu.exe');
-  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturaNu.exe');
+  if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','FaturaNu.exe');
+  else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'FaturaNu.exe');
   
   const python = spawn(exePath, [caminho]);
   
@@ -205,8 +201,8 @@ ipcMain.on('buscarFaturaNaoImportada', (event, pdfPath, noLoop) => {
 function faturaMultLoop(pastas) {
   return new Promise((resolve, reject) => {
     let exePath;
-    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'..','scripts','FaturaNu.exe');
-    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'FaturaNu.exe');
+    if (process.env.NODE_ENV !== 'production') exePath = path.resolve(__static,'scripts','FaturaNu.exe');
+    else exePath = path.join(process.resourcesPath, 'app.asar.unpacked', 'scripts', 'FaturaNu.exe');
     
     const python = spawn(exePath, [pastas]);
     

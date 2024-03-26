@@ -1,8 +1,8 @@
 <template>
   <div>
     <template>
-      <v-row class="mt-10">
-        <v-col cols="12">
+      <v-row>
+        <v-col cols="6">
         <v-expansion-panels popout>
 
           <v-expansion-panel :class="systemBgClass">
@@ -11,27 +11,27 @@
             </v-expansion-panel-header>
             <v-expansion-panel-content :class="systemBgClass">
               <template>
-                <v-card>
-                  <v-tabs dark background-color="purple darken-3" show-arrows v-model="tab">
+                <v-container>
+                  <v-tabs dark background-color="#420567" show-arrows v-model="tab">
                     <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
                     <v-tab v-for="(item, key) in faturasCompletas" :key="key" :href="`#tab-${key}`">
                       {{ dataMes(item.bill.summary.due_date) }}
                     </v-tab>
 
-                    <v-tabs-items v-model="tab">
+                    <v-tabs-items v-model="tab" class="transparent">
                       <v-tab-item v-for="(item, key) in faturasCompletas" :key="key" :value="`tab-${key}`" class="px-5">
                         <Fatura :fatura-dados="item"/>
                       </v-tab-item>
                     </v-tabs-items>
 
                   </v-tabs>
-                </v-card>
+                </v-container>
               </template>
                 <Footer />
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel :class="systemBgClass" active-class="mt-0">
+          <v-expansion-panel :class="systemBgClass">
             <v-expansion-panel-header>
               <span class="d-flex align-items-center gap-15"><Icone icone="santander"/>Santander</span>
             </v-expansion-panel-header>
@@ -77,7 +77,7 @@ export default {
     // console.log(this.agrupadoPorTitle);
     // console.log(this.agrupadoPorMesAno);
     // console.log(JSON.parse(JSON.stringify(this.agrupadoPorTitle)));
-    console.log(JSON.parse(JSON.stringify(this.faturasCompletas)));
+    // console.log(JSON.parse(JSON.stringify(this.faturasCompletas)));
 
     // console.log(JSON.parse(JSON.stringify(this.agrupadoPorMesAno)));
     // console.log(JSON.parse(JSON.stringify(this.gastosCartao[0])));
@@ -104,8 +104,6 @@ export default {
         (result[item.description] = result[item.description] || []).push(item);
         return result;
       }, {});
-
-      console.log(groupByDescription);
     },
     agruparPorDescricao() {
       this.agrupadoPorDescricao = this.gastosCartao.reduce((result, item) => {

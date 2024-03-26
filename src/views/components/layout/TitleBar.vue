@@ -53,7 +53,7 @@ export default {
     window.api.on('attPagina', () => this.atualizarPagina());
   },
   computed: {
-    systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#ffffff' },
+    systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#f3f0ec90' },
     iconColor() { return this.$vuetify.theme.dark ? '#ffffffb3' : '#000000' },
     currentUrl() { return this.$route.path; }
   },

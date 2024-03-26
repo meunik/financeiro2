@@ -61,27 +61,44 @@
 
               <v-divider></v-divider>
 
-              <v-list-item>
+              <!-- <v-list-item>
                 <v-list-item-content>
                   Total:
                 </v-list-item-content>
-                <v-list-item-content class="red--text">
-                  {{ modeda(item.total) }}
+                <v-list-item-content :class="{ 'red--text':1, 'align-end':1, 'green--text': isPagamento(item.nome) }">
+                  {{ isPagamento(item.nome) ? modeda(positivo(item.total)) : modeda(item.total) }}
                 </v-list-item-content>
               </v-list-item>
 
-              <v-divider></v-divider>
+              <v-divider></v-divider> -->
 
               <v-list dense>
-                <v-list-item v-for="(index, key) in item.datas" :key="key">
-                  <v-list-item-content :class="{ 'blue--text': sortBy === index.data }">
-                    {{ dataFormat(index.data) }}:
-                  </v-list-item-content>
-                  <v-list-item-content class="align-end" :class="{ 'blue--text': sortBy === index.data }">
-                    {{ modeda(index.valor) }}
-                  </v-list-item-content>
-                </v-list-item>
+                <v-list-group no-action>
+                  <template v-slot:activator>
+                    <v-list-item>
+                      <v-list-item-content>Total:</v-list-item-content>
+                      <v-list-item-content :class="{ 'red--text':1, 'align-end':1, 'green--text': isPagamento(item.nome) }">
+                        {{ isPagamento(item.nome) ? modeda(positivo(item.total)) : modeda(item.total) }}
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+
+                  <v-divider></v-divider>
+                  <v-list-item v-for="(index, key) in item.transacoes" :key="key">
+                    <v-list-item-content :class="{ 'blue--text': sortBy === index.post_date }">
+                      {{ index.title }}:
+                    </v-list-item-content>
+                    <v-list-item-action :class="{
+                        'align-end':1,
+                        'blue--text': sortBy === index.post_date,
+                        'green--text': isPagamento(item.nome),
+                      }">
+                      {{ isPagamento(item.nome) ? modeda(positivo(index.amount)) : modeda(index.amount) }}
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list-group>
               </v-list>
+
             </v-card>
           </v-col>
         </v-row>
@@ -97,10 +114,6 @@ import moment from 'moment'
 
 export default {
   props: {
-    datas: {
-      require: true,
-      type: Array
-    },
     items: {
       require: true,
       type: Array
@@ -113,7 +126,7 @@ export default {
       filter: {},
       sortDesc: false,
       page: 1,
-      itemsPerPage: 12,
+      itemsPerPage: 4,
       sortBy: 'nome',
       keys: [
         'Nome',
@@ -131,6 +144,8 @@ export default {
   methods: {
     dinheiro,
     modeda,
+    isPagamento(valor) { return (valor == 'Pagamento') ? true : false },
+    positivo(valor) { return Math.abs(valor) },
     dataFormat(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
     nextPage () {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
