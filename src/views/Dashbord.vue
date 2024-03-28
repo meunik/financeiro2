@@ -3,44 +3,45 @@
     <template>
       <v-row>
         <v-col cols="6">
-        <v-expansion-panels popout>
+          <v-banner class="my-5">Faturas</v-banner>
+          <v-expansion-panels :value-comparator="teste" :value="panel" popout>
 
-          <v-expansion-panel :class="systemBgClass" class="faturas">
-            <v-expansion-panel-header>
-              <span class="d-flex align-items-center gap-15"><Icone icone="nubank"/>Nubank</span>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content :class="systemBgClass" class="faturas">
-              <template>
-                <v-container>
-                  <v-tabs dark background-color="#420567" show-arrows v-model="tab">
-                    <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
-                    <v-tab v-for="(item, key) in faturasCompletas" :key="key" :href="`#tab-${key}`">
-                      {{ dataMes(item.bill.summary.due_date) }}
-                    </v-tab>
+            <v-expansion-panel :class="systemBgClass" class="faturas">
+              <v-expansion-panel-header>
+                <span class="d-flex align-items-center gap-15"><Icone icone="nubank"/>Nubank</span>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content :class="systemBgClass" class="faturas">
+                <template>
+                  <v-container>
+                    <v-tabs dark background-color="#420567" show-arrows v-model="tab">
+                      <v-tabs-slider color="teal lighten-3"></v-tabs-slider>
+                      <v-tab v-for="(item, key) in faturasCompletas" :key="key" :href="`#tab-${key}`">
+                        {{ dataMes(item.bill.summary.due_date) }}
+                      </v-tab>
 
-                    <v-tabs-items v-model="tab" class="transparent">
-                      <v-tab-item v-for="(item, key) in faturasCompletas" :key="key" :value="`tab-${key}`" class="px-5">
-                        <Fatura :fatura-dados="item"/>
-                      </v-tab-item>
-                    </v-tabs-items>
+                      <v-tabs-items v-model="tab" class="transparent">
+                        <v-tab-item v-for="(item, key) in faturasCompletas" :key="key" :value="`tab-${key}`" class="px-5">
+                          <Fatura :fatura-dados="item" :panel="panel" :panel-index="0"/>
+                        </v-tab-item>
+                      </v-tabs-items>
 
-                  </v-tabs>
-                </v-container>
-              </template>
-              <Footer />
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+                    </v-tabs>
+                  </v-container>
+                </template>
+                <Footer />
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-          <v-expansion-panel :class="systemBgClass">
-            <v-expansion-panel-header>
-              <span class="d-flex align-items-center gap-15"><Icone icone="santander"/>Santander</span>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content :class="systemBgClass">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+            <v-expansion-panel :class="systemBgClass">
+              <v-expansion-panel-header>
+                <span class="d-flex align-items-center gap-15"><Icone icone="santander"/>Santander</span>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content :class="systemBgClass">
+                Não possue cartão
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-        </v-expansion-panels>
+          </v-expansion-panels>
         </v-col>
       </v-row>
     </template>
@@ -63,6 +64,7 @@ export default {
   },
   data() {
     return {
+      panel: null,
       tab: null,
       agrupadoPorDescricao: [],
       agrupadoPorTitle: [],
@@ -86,6 +88,10 @@ export default {
     systemBgClass() { return this.$vuetify.theme.dark ? 'dark' : 'light' }
   },
   methods: {
+    teste(value, index) {
+      this.panel = value;
+      return (index == value);
+    },
     dataMes(data) {
       return moment(data, 'YYYY-MM-DD').locale('pt-br').format('MMM/YYYY');
     },

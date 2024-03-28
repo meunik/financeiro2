@@ -117,7 +117,13 @@
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
     <FaturaAgrupadaImport v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
-    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" tipo="bar" />
+    <GraficosFatura
+      v-if="transAgrup.length && !loading"
+      :items="transAgrup"
+      tipo="bar"
+      cor="red"
+      :tratar-numero="dinheiro"
+    />
   </div>
 </template>
 

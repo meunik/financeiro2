@@ -12,8 +12,14 @@ html, body, .v-application, .v-application--wrap {
 .v-application .transparente {
   height: 40px !important;
 }
-.v-dialog:not(.v-dialog--fullscreen) {
-  max-height: 90%;
+.v-bottom-sheet.v-dialog.v-bottom-sheet--inset.mapa {
+  max-height: 100%;
+}
+.v-bottom-sheet.v-dialog.v-bottom-sheet--inset.mapa > .v-list {
+  max-height: 100%;
+}
+.mapaLista {
+  max-height: 75vh;
   overflow: auto;
 }
 
@@ -67,7 +73,6 @@ html, body, .v-application, .v-application--wrap {
   border-radius: 0px !important;
 }
 .v-expansion-panels--popout > .v-expansion-panel--active.faturas {
-  margin-top: -73px;
   padding-top: 40px;
   position: fixed;
   width: 100% !important;
@@ -76,6 +81,7 @@ html, body, .v-application, .v-application--wrap {
   overflow: auto;
   left: 0;
   right: 0;
+  top: 0;
 }
 
 .v-expansion-panels--popout > .v-expansion-panel--active.faturas.dark {

@@ -18,8 +18,32 @@ export default {
     tipo: {
       type: String
     },
+    cor: {
+      type: [String, Array],
+      default: null
+    },
     entrada: {
       type: Number
+    },
+    tratarNumero: {
+      type: Function,
+      default: null
+    },
+    legend: {
+      type: Boolean,
+      default: false
+    },
+    eixo: {
+      type: String,
+      default: 'x'
+    },
+    escalaX: {
+      type: Boolean,
+      default: false
+    },
+    escalaY: {
+      type: Boolean,
+      default: false
     },
   },
   data() {
@@ -126,32 +150,77 @@ export default {
   beforeDestroy() {
     window.removeEventListener('resize', this.atualizar);
   },
+  computed: {
+    bgCor() {
+      let cor = null;
+      if (this.cor == 'green') cor = this.coresEntradas;
+      if (this.cor == 'red') cor = this.coresSaidas;
+      if (Array.isArray(this.cor)) cor = this.cor;
+      return cor;
+    },
+    nomes() { return this.items.map(obj => obj.nome); },
+    totais() { return this.items.map(obj => obj.total); }
+  },
   methods: {
+    moedaLabel(context) {
+      let txt = context.label;
+      let valor = context.raw;
+      let formattedValue = context.formattedValue;
+      let total = context.dataset.data.reduce((result, item) => result + item, 0);
+      let porcentagem = (valor / total) * 100;
+      if (!this.tratarNumero) return `${txt}: ${formattedValue} - ${porcentagem.toFixed(0)}%`;
+      return `${txt}: ${this.tratarNumero(valor)} - ${porcentagem.toFixed(0)}%`;
+    },
+    estalaTextoX(value, index, values) {
+      return this.nomes[index];
+    },
     atualizar() {
       if (this.chart) this.chart.destroy();
       this.createChart();
     },
     createChart() {
       const ctx = this.$refs.canvas.getContext('2d');
-      let nomes = this.items.map(obj => obj.nome);
-      let totais = this.items.map(obj => obj.total);
 
       this.chart = new Chart(ctx, {
         type: this.tipo,
         data: {
-          labels: nomes,
+          labels: this.nomes,
           datasets: [{
             label: 'Despesas',
-            data: totais,
+            data: this.totais,
+            backgroundColor: this.bgCor,
             // backgroundColor: [ '#ff6384', '#36a2eb', '#cc65fe', '#ffce56' ],
-            backgroundColor: this.entrada ? this.coresEntradas : this.coresSaidas,
             borderWidth: 1
           }]
         },
         options: {
           responsive: true,
-          // indexAxis: 'y', # fica vertical
-          scales: { y: { beginAtZero: true } }
+          indexAxis: this.eixo, // fica vertical
+          scales: {
+            x: {
+              display: this.escalaX,
+              ticks: {
+                callback: this.estalaTextoX
+              },
+            },
+            y: {
+              display: this.escalaY,
+              ticks: {
+                callback: this.tratarNumero
+              },
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: this.moedaLabel
+              }
+            },
+            legend: {
+              display: this.legend
+            },
+          }
+          
         }
       });
     }

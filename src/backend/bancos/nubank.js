@@ -192,9 +192,14 @@ ipcMain.on('buscarFaturaNaoImportada', (event, pdfPath, noLoop) => {
   });
 
   python.on('close', (code) => {
-    let dados = {...JSON.parse(data), ...pdfPath, referencia: referencia};
-    if (code !== 0) console.error(`Python script retornou ${code}`);
-    event.reply('exibeFaturaImportada', {dados: [dados], transportar: pdfPath, noLoop: noLoop++});
+    try {
+      let dados = {...JSON.parse(data), ...pdfPath, referencia: referencia};
+      if (code !== 0) console.error(`Python script retornou ${code}`);
+      event.reply('exibeFaturaImportada', {dados: [dados], transportar: pdfPath, noLoop: noLoop++});
+    } catch (error) {
+      event.reply('voltar');
+      event.reply('notificacao', 'Conversor incompativel.', 'error');
+    }
   });
 });
 

@@ -66,7 +66,7 @@
                   Total:
                 </v-list-item-content>
                 <v-list-item-content :class="{ 'red--text':1, 'align-end':1, 'green--text': isPagamento(item.nome) }">
-                  {{ isPagamento(item.nome) ? modeda(positivo(item.total)) : modeda(item.total) }}
+                  {{ isPagamento(item.nome) ? moeda(positivo(item.total)) : moeda(item.total) }}
                 </v-list-item-content>
               </v-list-item>
 
@@ -78,7 +78,7 @@
                     <v-list-item>
                       <v-list-item-content>Total:</v-list-item-content>
                       <v-list-item-content :class="{ 'red--text':1, 'align-end':1, 'green--text': isPagamento(item.nome) }">
-                        {{ isPagamento(item.nome) ? modeda(positivo(item.total)) : modeda(item.total) }}
+                        {{ isPagamento(item.nome) ? moeda(positivo(item.total)) : moeda(item.total) }}
                       </v-list-item-content>
                     </v-list-item>
                   </template>
@@ -93,7 +93,7 @@
                         'blue--text': sortBy === index.post_date,
                         'green--text': isPagamento(item.nome),
                       }">
-                      {{ isPagamento(item.nome) ? modeda(positivo(index.amount)) : modeda(index.amount) }}
+                      {{ isPagamento(item.nome) ? moeda(positivo(index.amount)) : moeda(index.amount) }}
                     </v-list-item-action>
                   </v-list-item>
                 </v-list-group>
@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { dinheiro, modeda } from '@/Utils/Converter'
+import { dinheiro, moeda } from '@/Utils/Converter'
 import moment from 'moment'
 
 export default {
@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     dinheiro,
-    modeda,
+    moeda,
     isPagamento(valor) { return (valor == 'Pagamento') ? true : false },
     positivo(valor) { return Math.abs(valor) },
     dataFormat(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },

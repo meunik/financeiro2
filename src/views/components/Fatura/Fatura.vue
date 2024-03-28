@@ -21,22 +21,22 @@
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
         <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
-          Valor Fatura: 
-          <span class="blue--text">{{ modeda(total) }}</span>
+          Fatura: 
+          <span class="blue--text text-no-wrap">{{ moeda(total) }}</span>
         </v-banner>
       </v-col>
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
         <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
           Estornos: 
-          <span class="green--text">{{ modeda(positivo(estornos)) }}</span>
+          <span class="green--text text-no-wrap">{{ moeda(positivo(estornos)) }}</span>
         </v-banner>
       </v-col>
       <v-col cols="12" sm="4">
         <v-skeleton-loader v-if="loading" type="list-item"></v-skeleton-loader>
         <v-banner v-else color="#420567" elevation="5" dark rounded shaped>
           Saidas: 
-          <span class="red--text">{{ modeda(saidas) }}</span>
+          <span class="red--text text-no-wrap">{{ moeda(saidas) }}</span>
         </v-banner>
       </v-col>
     </v-row>
@@ -81,7 +81,7 @@
           </template>
           <template v-slot:item.amount="{ item }">
             <span :class="cor(item.amount)">
-              {{ modeda(positivo(item.amount)) }}
+              {{ moeda(positivo(item.amount)) }}
             </span>
           </template>
           <template v-slot:item.post_date="{ item }">
@@ -100,9 +100,22 @@
 
     <v-skeleton-loader v-if="loading" type="table-tfoot"></v-skeleton-loader>
     <v-skeleton-loader v-if="loading" class="my-5" type="image"></v-skeleton-loader>
-    <FaturaCategorias v-if="agrupCategoria.length && !loading" :categorias="agrupCategoria"/>
-    <!-- <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
-    <GraficosFatura v-if="transAgrup.length && !loading" :items="transAgrup" tipo="bar" /> -->
+    
+    <v-banner class="my-5">Agrupados por Categorias</v-banner>
+    <FaturaCategorias v-if="agrupCategoria.length && !loading" :categorias="agrupCategoria" ref="categoria"/>
+    
+    <v-banner class="my-5">Agrupados por Nome</v-banner>
+    <GraficosFatura
+      v-if="transAgrup.length && !loading"
+      ref="graficoAgrupada"
+      :items="transAgrup"
+      tipo="bar"
+      cor="red"
+      :tratar-numero="moeda"
+      :escala-x="true"
+      :escala-y="true"
+    />
+    <FaturaAgrupada v-if="transAgrup.length && !loading" :items="transAgrup" :datas="diasAgrupadas"/>
 
 
 
@@ -114,7 +127,7 @@
 import FaturaAgrupada from '@/views/components/Fatura/FaturaAgrupada.vue'
 import FaturaCategorias from '@/views/components/Fatura/FaturaCategorias.vue'
 import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
-import { modeda } from '@/Utils/Converter'
+import { moeda } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
 import moment from 'moment'
 
@@ -127,9 +140,21 @@ export default {
   },
   props: {
     faturaDados: {
-      type: Array|Object,
+      type: [Array, Object],
       default: ''
     },
+    panelIndex: {
+      type: Number,
+    },
+    panel: {
+      type: Number,
+    },
+  },
+  watch: {
+    panel() {
+      if (this.panelIndex == this.panel) this.$refs.graficoAgrupada.atualizar();
+      if (this.panelIndex == this.panel) this.$refs.categoria.atualizar();
+    }
   },
   data() {
     return {
@@ -189,32 +214,38 @@ export default {
     },
     agrupCategoria() {
       let categorias = [];
-      let transacoes = this.transacoes.filter((item) => item.category != 'Pagamento')
+      let transacoes = this.transacoes.filter((item) => item.amount >= 0)
+      let total = 0;
       let items = transacoes.reduce((result, item) => {
         if (!result[item.category]) {
           result[item.category] = {
             transacoes: [],
             total: 0,
+            porcentagem: 0,
             nome: ''
           };
         }
         result[item.category].transacoes.push(item);
         result[item.category].total += item.amount;
         result[item.category].nome = item.category;
+        total += item.amount;
         return result;
       }, {});
-      Object.keys(items).map(key => categorias.push(items[key]));
+      Object.keys(items).map(key => {
+        items[key].porcentagem = (items[key].total / total) * 100;
+        categorias.push(items[key])
+      });
       return categorias;
     },
   },
   mounted() {
     // console.log('-------------------------------');
     // console.log(this.agrupCategoria.length);
-    console.log(JSON.parse(JSON.stringify(this.agrupCategoria)));
-    console.log(JSON.parse(JSON.stringify(this.transAgrup)));
+    // console.log(JSON.parse(JSON.stringify(this.agrupCategoria)));
+    // console.log(JSON.parse(JSON.stringify(this.transAgrup)));
   },
   methods: {
-    modeda,
+    moeda,
     fecharFatura() {
     },
     abrirSheet(arquivo) {},

@@ -1,17 +1,16 @@
 <template>
-  <v-row class="mt-10">
-    <v-col cols="12" sm="6" class="pa-0">
+  <div class="d-flex flex-column flex-md-row">
+    <div>
       <v-expansion-panels popout>
         <v-expansion-panel v-for="(cat, i) in categorias" :key="i" hide-actions>
           <v-expansion-panel-header>
-            <v-row no-gutters>
-              <v-col><strong>{{ cat.nome }}</strong></v-col>
-              <v-col class="text-no-wrap" cols="4">
-                <strong :class="{ 'red--text':1, 'green--text': isPagamento(cat.nome) }">
-                  {{ isPagamento(cat.nome) ? modeda(positivo(cat.total)) : modeda(cat.total) }}
-                </strong>
-              </v-col>
-            </v-row>
+            <div class="d-flex justify-space-between pr-5">
+              <strong class="text-no-wrap">{{ cat.nome }}</strong>
+              <div :class="{ 'red--text':1, 'text-no-wrap':1, 'green--text': isPagamento(cat.nome) }">
+                <span class="primary--text f-13">(<span class="grey--text">{{cat.porcentagem.toFixed(0)}}%</span>)</span>
+                <strong> {{ isPagamento(cat.nome) ? moeda(positivo(cat.total)) : moeda(cat.total) }}</strong>
+              </div>
+            </div>
           </v-expansion-panel-header>
 
           <v-expansion-panel-content>
@@ -22,7 +21,7 @@
                 <v-row class="d-flex justify-space-between">
                   <strong>{{ item.title }}</strong>
                   <strong class="text-no-wrap" :class="{ 'red--text':1, 'green--text': isPagamento(cat.nome) }">
-                    {{ isPagamento(cat.nome) ? modeda(positivo(item.amount)) : modeda(item.amount) }}
+                    {{ isPagamento(cat.nome) ? moeda(positivo(item.amount)) : moeda(item.amount) }}
                   </strong>
                 </v-row>
               </v-list-item>
@@ -31,16 +30,37 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-col>
-    <v-col cols="12" sm="6" class="pa-0">
-      <GraficosFatura v-if="categorias.length && !loading" :items="categorias" tipo="pie" />
-    </v-col>
-  </v-row>
+    </div>
+    <div style="min-width: 400px;">
+      <GraficosFatura
+        v-if="categorias.length && !loading"
+        ref="grafico"
+        :items="categorias"
+        tipo="pie"
+        :cor="[
+          '#ff6384',
+          '#36a2eb',
+          '#cc65fe',
+          '#ffce56',
+          '#FF1744',
+          '#00C853',
+          '#FF6D00',
+          '#263238',
+          '#4E342E',
+          '#1DE9B6',
+          '#0D47A1',
+          '#4A148C',
+        ]"
+        :tratar-numero="moeda"
+        :legend="true"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
 import GraficosFatura from '@/views/components/Graficos/GraficosFatura.vue'
-import { dinheiro, modeda } from '@/Utils/Converter'
+import { dinheiro, moeda } from '@/Utils/Converter'
 import { Model } from "@/store/Model"
 import moment from 'moment'
 
@@ -79,13 +99,14 @@ export default {
   },
   methods: {
     dinheiro,
-    modeda,
+    moeda,
     isPagamento(valor) { return (valor == 'Pagamento') ? true : false },
     positivo(valor) { return Math.abs(valor) },
     dataFormat(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
-    nextPage () { if (this.page + 1 <= this.numberOfPages) this.page += 1 },
-    formerPage () { if (this.page - 1 >= 1) this.page -= 1 },
-    updateItemsPerPage (number) { this.itemsPerPage = number },
+    nextPage() { if (this.page + 1 <= this.numberOfPages) this.page += 1 },
+    formerPage() { if (this.page - 1 >= 1) this.page -= 1 },
+    updateItemsPerPage(number) { this.itemsPerPage = number },
+    atualizar() { this.$refs.grafico.atualizar() },
   },
 }
 </script>

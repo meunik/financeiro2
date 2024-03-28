@@ -12,7 +12,7 @@ async function mapaId(mapa) {
     mapaObj.children = mapaObj.children.map(function(child) {
       var mapaChild = {...child};
       var hash = crypto.createHash('sha256');
-      hash.update(mapaChild.path);
+      hash.update(mapaChild.caminho);
       mapaChild.id = hash.digest('hex');
       return mapaChild;
     });

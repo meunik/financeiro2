@@ -51,6 +51,7 @@ export default {
   mixins: [Model],
   created() {
     window.api.on('attPagina', () => this.atualizarPagina());
+    window.api.on('voltar', () => this.voltar());
   },
   computed: {
     systemBarBg() { return this.$vuetify.theme.dark ? '#121212c9' : '#f3f0ec90' },

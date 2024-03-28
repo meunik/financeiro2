@@ -62,24 +62,24 @@
               <v-divider></v-divider>
 
               <v-list-item>
-                <v-list-item-content>
-                  Total:
-                </v-list-item-content>
-                <v-list-item-content class="red--text">
-                  {{ modeda(item.total) }}
-                </v-list-item-content>
+                <v-row class="d-flex justify-space-between px-3">
+                  <strong>Total:</strong>
+                  <strong class="text-no-wrap red--text">
+                    {{ moeda(item.total) }}
+                  </strong>
+                </v-row>
               </v-list-item>
 
               <v-divider></v-divider>
 
               <v-list dense>
                 <v-list-item v-for="(index, key) in item.datas" :key="key">
-                  <v-list-item-content :class="{ 'blue--text': sortBy === index.data }">
-                    {{ dataFormat(index.data) }}:
-                  </v-list-item-content>
-                  <v-list-item-content class="align-end" :class="{ 'blue--text': sortBy === index.data }">
-                    {{ modeda(index.valor) }}
-                  </v-list-item-content>
+                  <v-row class="d-flex justify-space-between px-3" :class="{ 'blue--text': sortBy === index.data }">
+                    <span>{{ dataFormat(index.data) }}</span>
+                    <span class="text-no-wrap red--text">
+                      {{ moeda(index.valor) }}
+                    </span>
+                  </v-row>
                 </v-list-item>
               </v-list>
             </v-card>
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { dinheiro, modeda } from '@/Utils/Converter'
+import { dinheiro, moeda } from '@/Utils/Converter'
 import moment from 'moment'
 
 export default {
@@ -130,7 +130,7 @@ export default {
   },
   methods: {
     dinheiro,
-    modeda,
+    moeda,
     dataFormat(data) { return moment(data, 'YYYY-MM-DD').locale('pt-br').format('DD/MM/YYYY'); },
     nextPage () {
       if (this.page + 1 <= this.numberOfPages) this.page += 1
